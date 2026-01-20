@@ -30,6 +30,7 @@ class Sudoku
     Grille grill_ini ; // grille initiale
     list<Grille> grille_sol; // liste des grilles solutions
 };
+Sudoku Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
 
 #endif 
 
