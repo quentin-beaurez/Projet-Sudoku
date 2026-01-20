@@ -29,6 +29,7 @@ class Sudoku
     bool uniqueSol = false; // pour le test d'unicité
     Grille grill_ini ; // grille initiale
     list<Grille> grille_sol; // liste des grilles solutions
+    void affiche_sudoku(); // affichage du Sudoku
 };
 Sudoku Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
 
