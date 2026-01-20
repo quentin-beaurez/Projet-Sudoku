@@ -17,7 +17,7 @@ class Grille : vector<vector<int>>
     mutable vector<suint> vs,vl,vc,vb; // vecteurs de travail
 };
 
-
+// Quentin
 
 
 #endif 
