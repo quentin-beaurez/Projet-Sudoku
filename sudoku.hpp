@@ -10,19 +10,20 @@ using namespace std;
 //===========================================================
 
 typedef unsigned int suint;
-class Grille : vector<vector<int>>
+class Grille : public vector<vector<suint>>
 {public :
     int n = 0; // ordre de la grille
     mutable vector<pair<suint,suint>> casesVides; // vecteur des cases vides
     mutable vector<suint> vs,vl,vc,vb; // vecteurs de travail
     Grille(); // constructeur par défaut
-    Grille(int n); //constructeur pour n choisi
+    Grille(int ordre); //constructeur pour n choisi
     Grille generation(); // fonction génératrice d'une grille
     void afficher(); // fonction d'affichage d'une grille
     void importer(); // fonction  pour importer une grille d'un fichier
     void exporter(); // fonction  pour exporter une grille dans un fichier
     void majcasesVides(); // fonction qui génère une liste avec les cases vides
-    vector<int> listeadmissibles(); // fonction qui donne les valeurs admissibles pour une case vide
+    bool estPresent(const vector<suint>& liste, suint valeur); //détermine si 'valeur' est présente dans la liste 'liste'
+    vector<suint> listeadmissibles(pair<suint,suint> coord); // fonction qui donne les valeurs admissibles pour une case vide
 };
 
 //===========================================================
