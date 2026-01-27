@@ -5,6 +5,7 @@
 #include <algorithm> //nouveau !
 #include <cmath> //nouveau !
 #include <random> //nouveau !
+#include <fstream>
 
 using namespace std;
 
@@ -134,6 +135,57 @@ Grille generation(int ordre, float densite){
 
     return grille;
 }
+
+void Grille::importer(const string& nomFichier){
+    ifstream fichier(nomFichier);    //ouverture du fichier en lecture
+
+    if (!fichier.is_open()){
+        cout<<"Erreur : impossible d'ouvrir le fichier"<<endl;
+        return;}
+
+    int taille = n*n;
+    
+    for (int i = 0;i<taille;i++){
+        for(int j =0;j<taille;j++){
+        fichier>>(*this)[i][j];
+        }
+    }
+    fichier.close();
+    cout<<"Grille importée avec succès depuis "<<nomFichier<<endl;
+
+}
+
+void Grille::exporter(const string& nomFichier){
+    ofstream fichier(nomFichier);    //ouverture du fichier en écriture
+
+    if (!fichier.is_open()){
+        cout<<"Erreur : impossible d'ouvrir le fichier"<<endl;
+        return;
+    }
+    int taille = n*n;
+
+    for(int i=0;i<taille;i++){
+        for(int j=0;j<taille;j++){
+            fichier<<(*this)[i][j]<<" ";
+        }
+        fichier << endl;
+    }
+    fichier.close();
+    cout<<"Grille exportée avec succès dans "<<nomFichier<<endl;
+
+}
+
+void Grille::afficher(){
+    int taille = n*n;
+
+    for(int i = 0; i<taille;i++){
+        for(int j = 0; j<taille;j++){
+            cout<<(*this)[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+}
+
 
 
 //========================================

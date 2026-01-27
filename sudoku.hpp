@@ -6,6 +6,7 @@
 #include <algorithm> //nouveau !
 #include <cmath> //nouveau !
 #include <random> //nouveau !
+#include <fstream>
 
 using namespace std;
 
@@ -23,8 +24,8 @@ class Grille : public vector<vector<suint>>
     Grille(int ordre); //constructeur pour n choisi
     Grille generation(int ordre = 3, float densite = 0.3); // fonction génératrice d'une grille //cette fonction devrait pas etre externe à la classe ?
     void afficher(); // fonction d'affichage d'une grille
-    void importer(); // fonction  pour importer une grille d'un fichier
-    void exporter(); // fonction  pour exporter une grille dans un fichier
+    void importer(const string& nomFichier = "grille.txt"); // fonction  pour importer une grille d'un fichier
+    void exporter(const string& nomFichier = "grille.txt"); // fonction  pour exporter une grille dans un fichier
     void majcasesVides(); // fonction qui génère une liste avec les cases vides
     bool estPresent(const vector<suint>& liste, suint valeur); //détermine si 'valeur' est présente dans la liste 'liste'
     vector<suint> listeadmissibles(pair<suint,suint> coord); // fonction qui donne les valeurs admissibles pour une case vide
