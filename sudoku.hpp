@@ -46,7 +46,7 @@ class Sudoku
 
     // Constructeurs 
     Sudoku(int n); // Constructeur par défaut avec l'ordre 
-    Sudoku(const Grille& g) // Construction à partir de la classe Grille 
+    Sudoku(const Grille& g); // Construction à partir de la classe Grille 
 
     bool Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
 };

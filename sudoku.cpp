@@ -145,7 +145,7 @@ Grille generation(int ordre, float densite){
 Sudoku :: Sudoku(int n) // Constructeur par défaut 
 {
     this->ordre = n;
-    this->grille_ini = Grille(n)
+    this->grille_ini = Grille(n);
 }
 
 Sudoku :: Sudoku(const Grille& g): grille_ini(g) // Constructeur à partir de la classe Grille 
@@ -163,7 +163,7 @@ bool Sudoku::Solution(int n)
         {
             return false;
         }
-        return true
+        return true;
     }
     suint ligne = grille_ini.casesVides[n].first;
     suint col = grille_ini.casesVides[n].second;
