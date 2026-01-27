@@ -45,21 +45,21 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
         vals.push_back(i);
     }
 
-    //on parcours la ligne
+    //on parcourt la ligne
     for(int i=0; i<taille_cote; i++){
         suint test = (*this)[ligne][i];
         if(estPresent(vals, test)){
             vals.erase(remove(vals.begin(), vals.end(), test), vals.end());
         }
     }
-    //on parcours la colonne
+    //on parcourt la colonne
     for(int i=0; i<taille_cote; i++){
         suint test = (*this)[i][col];
         if(estPresent(vals, test)){
             vals.erase(remove(vals.begin(), vals.end(), test), vals.end());
         }
     }
-    //on parcours le bloc
+    //on parcourt le bloc
     for(int i = k_ligne; i <= k_ligne + n; i++){
         for(int j = k_col; j  <= k_col + n; j++){
             suint test = (*this)[i][j];
