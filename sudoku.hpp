@@ -39,8 +39,13 @@ class Sudoku
     Grille grill_ini ; // grille initiale
     list<Grille> grille_sol; // liste des grilles solutions
     void affiche_sudoku(); // affichage du Sudoku
+
+    // Constructeurs 
+    Sudoku(int n); // Constructeur par défaut avec l'ordre 
+    Sudoku(const Grille& g) // Construction à partir de la classe Grille 
+
+    bool Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
 };
-Sudoku Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
 
 #endif 
 

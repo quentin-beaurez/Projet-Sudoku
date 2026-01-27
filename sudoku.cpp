@@ -75,9 +75,45 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
 // Classe Sudoku =========================
 // =======================================
 
-// Fonction Solution : Recherche de Solutions du Sudoku 
+// Constructeurs
 
-Sudoku Solution(int n)
+Sudoku :: Sudoku(int n) // Constructeur par défaut 
 {
-    return 0;
+    this->ordre = n;
+    this->grille_ini = Grille(n)
+}
+
+Sudoku :: Sudoku(const Grille& g): grille_ini(g) // Constructeur à partir de la classe Grille 
+{
+    this->ordre = g.n;
+    this->grille_ini.majcasesVides();
+}
+
+bool Sudoku::Solution(int n)
+{
+    if(n==grille_ini.casesVides.size()) // Condition d'arrêt si n = N 
+    {
+        grille_sol.push_back(grille_ini);
+        if (allSol)
+        {
+            return false;
+        }
+        return true
+    }
+    suint ligne = grille_ini.casesVides[n].first;
+    suint col = grille_ini.casesVides[n].second;
+
+    vector<suint> admissibles = grille_ini.listeadmissibles({ligne, col});
+
+    for(suint val : admissibles)
+    {
+        grille_ini[ligne][col] = val;
+        if (Solution(n + 1))
+        {
+            return true;
+        }
+    }
+
+    grille_ini[ligne][col] = 0;
+    return false;
 }
