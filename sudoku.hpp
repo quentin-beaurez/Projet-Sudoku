@@ -7,6 +7,7 @@
 #include <cmath> //nouveau !
 #include <random> //nouveau !
 #include <fstream>
+#include <list>
 
 using namespace std;
 
