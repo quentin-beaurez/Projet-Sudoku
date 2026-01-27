@@ -38,7 +38,7 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
     suint ligne = coord.first;
     suint col = coord.second;
     suint taille_cote = n*n;
-   
+
     //on détermine le coin haut gauche du bloc dans lequel se trouve la case d'intérêt
     suint k_ligne = (ligne / n) * n; //division entière (tronque la partie décimale)
     suint k_col = (col / n) * n;
