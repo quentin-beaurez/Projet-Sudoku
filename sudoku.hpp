@@ -40,7 +40,7 @@ class Sudoku
     int nbcase = 0; // nombre de cases à initialiser
     bool allSol = false; // recherche de toutes les solutions si true 
     bool uniqueSol = false; // pour le test d'unicité
-    Grille grill_ini ; // grille initiale
+    Grille grille_ini ; // grille initiale
     list<Grille> grille_sol; // liste des grilles solutions
     void affiche_sudoku(); // affichage du Sudoku
 
