@@ -3,6 +3,10 @@
 #include <iostream>
 #include <vector>
 #include <complex>
+#include <algorithm> //nouveau !
+#include <cmath> //nouveau !
+#include <random> //nouveau !
+
 using namespace std;
 
 //===========================================================
@@ -17,7 +21,7 @@ class Grille : public vector<vector<suint>>
     mutable vector<suint> vs,vl,vc,vb; // vecteurs de travail
     Grille(); // constructeur par défaut
     Grille(int ordre); //constructeur pour n choisi
-    Grille generation(); // fonction génératrice d'une grille
+    Grille generation(int ordre = 3, float densite = 0.3); // fonction génératrice d'une grille //cette fonction devrait pas etre externe à la classe ?
     void afficher(); // fonction d'affichage d'une grille
     void importer(); // fonction  pour importer une grille d'un fichier
     void exporter(); // fonction  pour exporter une grille dans un fichier

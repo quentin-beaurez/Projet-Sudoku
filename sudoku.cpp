@@ -2,7 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <complex>
-#include <algorithm>
+#include <algorithm> //nouveau !
+#include <cmath> //nouveau !
+#include <random> //nouveau !
 
 using namespace std;
 
@@ -70,6 +72,69 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
     }
     return vals;
 }
+
+//fonction permettant de mettre à jour les cases vides de la grille
+void Grille::majcasesVides(){
+    vector<pair<suint,suint>> cases;
+    int taille_cote = (*this).n * (*this).n;
+    for(int i = 0; i< taille_cote; i++){
+        for(int j = 0; j< taille_cote; j++){
+            if( (*this)[i][j] == 0){
+                cases.push_back({i,j});
+            }
+        }
+    }
+    (*this).casesVides = cases;
+}
+
+//Génère une grille aléatoire : pas forcément résolvable, avec des valeurs aléatoires dans des positions aléatoires, en densité précisée
+Grille generation(int ordre, float densite){
+    Grille grille(ordre); //on construit une grille d'ordre 'ordre' vide à l'aide du constructeur de la classe
+    
+    //détermination du nombre de cases remplies initial ( = 0)
+    int taille_cote = ordre * ordre;
+    int nbr_cases = taille_cote*taille_cote; 
+    int casesRemplies = 0;
+
+    //détermination du nombre de cases à remplir
+    int cases_a_remplir = ceil(densite*nbr_cases);
+
+    //on détermine une ditribution de nombres aléatoires entre 1 et taille_cote pour avoir des coordonnées aléatoires
+    //le static permet de pas recréer le moteur aléatoire à chaque appel de la fonction (optionnel mais permet d'aller plus vite si on appel la fonction de nombreuses fois)
+    static random_device rd;
+    static default_random_engine eng(rd());
+    
+    //distribution de valeurs des coordonnées
+    uniform_int_distribution<int> distrib_coord(0, taille_cote-1);
+
+    //distibution de valeurs aléatoires à rentrer dans la case désignée
+    uniform_int_distribution<int> distrib_val(1, taille_cote); //valeur aléatoire à rentrer dans la case désignée
+    
+    // Par sécurité : permet d'éviter une boucle infinie si la densité est trop haute
+    int tentatives_max = cases_a_remplir * 100; 
+    int tentatives = 0;
+
+    while(casesRemplies < cases_a_remplir && tentatives < tentatives_max){
+        tentatives++;
+        int i_ = distrib_coord(eng);
+        int j_ = distrib_coord(eng);
+
+        if(grille[i_][j_] == 0){ //on modifie uniquement si la case est vide pour ne pas faire des changements pour rien
+            int val = distrib_val(eng); //valeur à mettre dans la case (i_,j_)
+            vector<suint> possibles = grille.listeadmissibles({(suint)i_, (suint)j_});
+
+            if (grille.estPresent(possibles, val)) {
+                grille[i_][j_] = val;
+                casesRemplies++;
+            }
+        }
+        
+    }
+    grille.majcasesVides(); //on met à jour les cases vides restantes dans la grille
+
+    return grille;
+}
+
 
 //========================================
 // Classe Sudoku =========================
