@@ -64,8 +64,8 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
         }
     }
     //on parcourt le bloc
-    for(int i = k_ligne; i <= k_ligne + n; i++){
-        for(int j = k_col; j  <= k_col + n; j++){
+    for(int i = k_ligne; i < k_ligne + n; i++){
+        for(int j = k_col; j  < k_col + n; j++){
             suint test = (*this)[i][j];
             if(estPresent(vals, test)){
                 vals.erase(remove(vals.begin(), vals.end(), test), vals.end());
