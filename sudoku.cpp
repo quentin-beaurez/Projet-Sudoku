@@ -236,3 +236,27 @@ bool Sudoku::Solution(int n)
 }
 
 // Liste des grilles //
+
+
+// Affichage de la solution //
+
+void Sudoku::affiche_sudoku() 
+{
+    cout << "========================================" << endl;
+    cout << "          GRILLE INITIALE" << endl;
+    cout << "========================================" << endl;
+    grille_ini.afficher();
+
+    cout << endl;
+    cout << "Nombre de solutions trouvees : " << grille_sol.size() << endl;
+    
+    int i = 1;
+    for (auto& solution : grille_sol) 
+    {
+        cout << endl;
+        cout << ">>> Solution " << i << " <<<" << endl;
+        solution.afficher();
+        i++;
+    }
+    cout << "========================================" << endl;
+}
