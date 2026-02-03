@@ -234,3 +234,5 @@ bool Sudoku::Solution(int n)
     grille_ini[ligne][col] = 0;
     return false;
 }
+
+// Liste des grilles //
