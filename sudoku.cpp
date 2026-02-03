@@ -90,11 +90,11 @@ void Grille::majcasesVides(){
 }
 
 //Génère une grille aléatoire : pas forcément résolvable, avec des valeurs aléatoires dans des positions aléatoires, en densité précisée
-Grille generation(int ordre, float densite){
-    Grille grille(ordre); //on construit une grille d'ordre 'ordre' vide à l'aide du constructeur de la classe
+void Grille::generation(float densite){
+    //Grille grille(ordre); //on construit une grille d'ordre 'ordre' vide à l'aide du constructeur de la classe
     
     //détermination du nombre de cases remplies initial ( = 0)
-    int taille_cote = ordre * ordre;
+    int taille_cote = this->n * this->n;
     int nbr_cases = taille_cote*taille_cote; 
     int casesRemplies = 0;
 
@@ -121,21 +121,20 @@ Grille generation(int ordre, float densite){
         int i_ = distrib_coord(eng);
         int j_ = distrib_coord(eng);
 
-        if(grille[i_][j_] == 0){ //on modifie uniquement si la case est vide pour ne pas faire des changements pour rien
+        if((*this)[i_][j_] == 0){ //on modifie uniquement si la case est vide pour ne pas faire des changements pour rien
             int val = distrib_val(eng); //valeur à mettre dans la case (i_,j_)
-            vector<suint> possibles = grille.listeadmissibles({(suint)i_, (suint)j_});
+            vector<suint> possibles = (*this).listeadmissibles({(suint)i_, (suint)j_});
 
-            if (grille.estPresent(possibles, val)) {
-                grille[i_][j_] = val;
+            if ((*this).estPresent(possibles, val)) {
+                (*this)[i_][j_] = val;
                 casesRemplies++;
             }
         }
         
     }
-    grille.majcasesVides(); //on met à jour les cases vides restantes dans la grille
-
-    return grille;
+    (*this).majcasesVides(); //on met à jour les cases vides restantes dans la grille
 }
+
 
 void Grille::importer(const string& nomFichier){
     ifstream fichier(nomFichier);    //ouverture du fichier en lecture

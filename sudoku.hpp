@@ -23,7 +23,7 @@ class Grille : public vector<vector<suint>>
     mutable vector<suint> vs,vl,vc,vb; // vecteurs de travail
     Grille(); // constructeur par défaut
     Grille(int ordre); //constructeur pour n choisi
-    Grille generation(int ordre = 3, float densite = 0.3); // fonction génératrice d'une grille //cette fonction devrait pas etre externe à la classe ?
+    void generation(float densite = 0.3); // fonction génératrice d'une grille 
     void afficher(); // fonction d'affichage d'une grille
     void importer(const string& nomFichier = "grille.txt"); // fonction  pour importer une grille d'un fichier
     void exporter(const string& nomFichier = "grille.txt"); // fonction  pour exporter une grille dans un fichier
