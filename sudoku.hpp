@@ -6,8 +6,8 @@
 #include <algorithm> //nouveau !
 #include <cmath> //nouveau !
 #include <random> //nouveau !
-#include <fstream>
 #include <list>
+#include <fstream>
 
 using namespace std;
 
@@ -27,7 +27,7 @@ class Grille : public vector<vector<suint>>
     void afficher(); // fonction d'affichage d'une grille
     void importer(const string& nomFichier = "grille.txt"); // fonction  pour importer une grille d'un fichier
     void exporter(const string& nomFichier = "grille.txt"); // fonction  pour exporter une grille dans un fichier
-    void majcasesVides(); // fonction qui génère une liste avec les cases vides
+    void majcasesVides(); // fonction qui actualise la liste des cases vides
     bool estPresent(const vector<suint>& liste, suint valeur); //détermine si 'valeur' est présente dans la liste 'liste'
     vector<suint> listeadmissibles(pair<suint,suint> coord); // fonction qui donne les valeurs admissibles pour une case vide
 };
@@ -44,7 +44,7 @@ class Sudoku
     bool uniqueSol = false; // pour le test d'unicité
     Grille grille_ini ; // grille initiale
     list<Grille> grille_sol; // liste des grilles solutions
-    void affiche_sudoku(); // affichage du Sudoku
+    void affiche_sudoku(int limite = 5); // affichage du Sudoku
 
     // Constructeurs 
     Sudoku(int n); // Constructeur par défaut avec l'ordre 
@@ -53,6 +53,10 @@ class Sudoku
     bool Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
 };
 
+/* Pas besoin de cette fonction : la fonction interne à la classe "Solution" suffit. On peut quand
+même l'implémenter mais le faire dans le main semble etre plus adapté.
+Sudoku Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
+*/
 #endif 
 
 //test commit

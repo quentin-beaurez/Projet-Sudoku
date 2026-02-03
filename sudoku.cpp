@@ -5,8 +5,9 @@
 #include <algorithm> //nouveau !
 #include <cmath> //nouveau !
 #include <random> //nouveau !
-#include <fstream>
 #include <list>
+#include <fstream>
+
 
 using namespace std;
 
@@ -38,41 +39,42 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
     suint ligne = coord.first;
     suint col = coord.second;
     suint taille_cote = n*n;
-
+   
     //on détermine le coin haut gauche du bloc dans lequel se trouve la case d'intérêt
-    suint k_ligne = (ligne / n) * n; //division entière (tronque la partie décimale)
+    suint k_ligne = (ligne / n) * n; //division entière (tronque la partie décimale) : division entière par défaut car on divise un entier par un entier
     suint k_col = (col / n) * n;
     
-    //on créé une liste de toutes les valeurs possibles pour une case (dans une grille vide)
-    vector<suint> vals;
-    for(int i=1; i <= taille_cote; ++i){
-        vals.push_back(i);
-    }
+    // On crée un tableau de booléens initialisés à 'false'.
+    // Taille + 1 pour pouvoir utiliser l'index direct
+    vector<bool> est_interdit(taille_cote + 1, false);
 
     //on parcourt la ligne
-    for(int i=0; i<taille_cote; i++){
-        suint test = (*this)[ligne][i];
-        if(estPresent(vals, test)){
-            vals.erase(remove(vals.begin(), vals.end(), test), vals.end());
-        }
+    for(int j=0; j<taille_cote; j++){
+        suint val = (*this)[ligne][j];
+        if (val != 0) est_interdit[val] = true;
     }
+    
     //on parcourt la colonne
     for(int i=0; i<taille_cote; i++){
-        suint test = (*this)[i][col];
-        if(estPresent(vals, test)){
-            vals.erase(remove(vals.begin(), vals.end(), test), vals.end());
-        }
+        suint val = (*this)[i][col];
+        if (val != 0) est_interdit[val] = true;
     }
     //on parcourt le bloc
     for(int i = k_ligne; i < k_ligne + n; i++){
         for(int j = k_col; j  < k_col + n; j++){
-            suint test = (*this)[i][j];
-            if(estPresent(vals, test)){
-                vals.erase(remove(vals.begin(), vals.end(), test), vals.end());
-            }
+            suint val = (*this)[i][j];
+            if (val != 0) est_interdit[val] = true;
         }
     }
-    return vals;
+
+    //On récupère les valeurs admissibles
+    vector<suint> resultats;
+    for(suint val = 1; val <= taille_cote; val++){
+        if (est_interdit[val] == false){ // Si pas interdit
+            resultats.push_back(val);
+        }
+    }
+    return resultats;
 }
 
 //fonction permettant de mettre à jour les cases vides de la grille
@@ -135,7 +137,6 @@ void Grille::generation(float densite){
     (*this).majcasesVides(); //on met à jour les cases vides restantes dans la grille
 }
 
-
 void Grille::importer(const string& nomFichier){
     ifstream fichier(nomFichier);    //ouverture du fichier en lecture
 
@@ -187,34 +188,26 @@ void Grille::afficher(){
 }
 
 
-
 //========================================
 // Classe Sudoku =========================
 // =======================================
 
 // Constructeurs
 
-Sudoku :: Sudoku(int n) // Constructeur par défaut 
-{
-    this->ordre = n;
-    this->grille_ini = Grille(n);
-}
+//CHANGEMENTS DES CONSTRUCTEURS !!!
+Sudoku :: Sudoku(int n) : ordre(n), grille_ini(n) {}// Constructeur par défaut 
 
-Sudoku :: Sudoku(const Grille& g): grille_ini(g) // Constructeur à partir de la classe Grille 
+Sudoku :: Sudoku(const Grille& g): grille_ini(g), ordre(g.n) // Constructeur à partir de la classe Grille 
 {
-    this->ordre = g.n;
     this->grille_ini.majcasesVides();
 }
 
+//CHANGEMENTS DE LA FONCTION SOLUTION : 
 bool Sudoku::Solution(int n)
 {
-    if(n==grille_ini.casesVides.size()) // Condition d'arrêt si n = N 
+    int N = grille_ini.casesVides.size();
+    if(n==N) // Condition d'arrêt si n = N 
     {
-        grille_sol.push_back(grille_ini);
-        if (allSol)
-        {
-            return false;
-        }
         return true;
     }
     suint ligne = grille_ini.casesVides[n].first;
@@ -227,11 +220,15 @@ bool Sudoku::Solution(int n)
         grille_ini[ligne][col] = val;
         if (Solution(n + 1))
         {
-            return true;
+            if (n < N-1){return true;}
+            
+            grille_sol.push_back(grille_ini);
+            
+            if (!allSol){return true;}
         }
+        grille_ini[ligne][col] = 0; //val ne convient pas
     }
 
-    grille_ini[ligne][col] = 0;
     return false;
 }
 
@@ -239,8 +236,7 @@ bool Sudoku::Solution(int n)
 
 
 // Affichage de la solution //
-
-void Sudoku::affiche_sudoku() 
+void Sudoku::affiche_sudoku(int limite) 
 {
     cout << "========================================" << endl;
     cout << "          GRILLE INITIALE" << endl;
@@ -250,9 +246,14 @@ void Sudoku::affiche_sudoku()
     cout << endl;
     cout << "Nombre de solutions trouvees : " << grille_sol.size() << endl;
     
+    if (limite < grille_sol.size()){
+        cout << "On affiche les " << limite << " premieres solutions" << endl;
+    }
+
     int i = 1;
     for (auto& solution : grille_sol) 
     {
+        if(i==limite+1){break;}
         cout << endl;
         cout << ">>> Solution " << i << " <<<" << endl;
         solution.afficher();
