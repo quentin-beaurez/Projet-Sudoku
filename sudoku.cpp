@@ -330,3 +330,101 @@ void Sudoku::affiche_sudoku(int limite)
     }
     cout << "========================================" << endl;
 }
+
+// Construit une grille à solution unique
+Grille Sudoku::Solution_unique(float densite_obj){
+    int ordre_ = this->ordre;
+    float densite_ = 0.25; // densité de la grille initiale pour trouver facilement une première solution
+
+    // Calcul du nombre de cases qu'on doit garder au minimum
+    int taille_totale = ordre_ * ordre_ * ordre_ * ordre_;
+    int nombre_cases_cible = ceil(densite_obj * taille_totale);
+
+    //parametres dont la modification devra etre implantée (apres avoir fini la fct)
+    int casesSuppr = 1; // nombres de cases à supprimer par itération
+    int itermax = 100;
+
+    // ------- ETAPE 1 : on genère une grille pleine -------
+    Grille g(ordre_); // construction d'une grille d'ordre 'ordre_'
+    Grille grille_complete(ordre_); //on prépare la grille complète
+    bool grille_trouvee = false; //booléen pour s'arrêter quand on trouve notre grille complète
+    
+
+    // On boucle tant qu'on n'a pas généré une grille valide complète
+    while(!grille_trouvee){
+        g = Grille(ordre_);     // on reset (inutile à l'étape 1 mais sert pour toutes les autres)
+        g.generation(densite_); // Remplissage partiel de la grille 
+
+        Sudoku s(g); 
+        s.allSol = false; // On cherche juste une solution pour la compléter
+        if(s.Solution(0)){
+            // On récupère la grille pleine
+            if(!s.grille_sol.empty()){
+                grille_complete = s.grille_sol.front();
+                grille_trouvee = true;
+            }
+        }
+    }
+
+    // ------- ETAPE 2 : on fait des trous jusqu'à ce qu'on perde l'unicité -------
+    Grille g_courante = grille_complete;
+    Grille g_precedente = grille_complete; // Sauvegarde de la dernière grille valide
+    
+    bool estUnique = true; //la solution est unique
+    int securite = 0; //pour pas que le suppression soit infinie
+
+    // Compteur de cases remplies (au début, la grille est pleine)
+    int cases_remplies_actuelles = taille_totale;
+
+    // Configuration pour le générateur aléatoire
+    static random_device rd;
+    static default_random_engine eng(rd());
+    int taille_cote = ordre_ * ordre_;
+    uniform_int_distribution<int> distrib_coord(0, taille_cote-1);
+
+    while(estUnique && securite < itermax && cases_remplies_actuelles > nombre_cases_cible){
+        securite++;
+
+        // Sauvegarde de l'état actuel (qui est valide et unique)
+        g_precedente = g_courante;
+
+        // Suppression des cases
+        int casesAEnlever = casesSuppr;
+        int tentatives_suppr = 0; //sécurité
+        
+        while(casesAEnlever > 0 && tentatives_suppr < 100){
+            tentatives_suppr++;
+            int i = distrib_coord(eng);
+            int j = distrib_coord(eng);
+
+            if(g_courante[i][j] != 0){ // Si la case n'est pas déjà vide
+                g_courante[i][j] = 0;  // On la vide
+                casesAEnlever--;
+                cases_remplies_actuelles--;
+            }
+        }
+
+        // Vérification de l'unicité
+        Sudoku testeur(g_courante);
+        testeur.allSol = true; // IMPORTANT : On veut compter les solutions et vérifier qu'il n'y en a qu'une seule
+        testeur.Solution(0); 
+
+        if(testeur.grille_sol.size() == 1){
+            // C'est toujours unique ! On continue la boucle pour enlever d'autres cases
+            estUnique = true;
+        } else {
+            // solution plus unique, on a enlevé trop de cases
+            estUnique = false;
+        }
+    }
+    float densite_actuelle = (float)cases_remplies_actuelles / taille_totale;
+
+    cout << "Densité atteinte : " << densite_actuelle << endl;
+    cout << "Densité voulue : " << densite_obj << endl;
+    
+    if (estUnique) {
+        return g_courante;
+    } else { // cas où on atteint pas la densité cible
+        return g_precedente;
+    }   
+}

@@ -14,7 +14,7 @@ int main(){
     Grille gr(3);
     gr.generation();
     gr.afficher();
-    */
+    
     //==============================================
     //Test des fonctions de résolution d'un Sudoku :
     //==============================================
@@ -36,6 +36,50 @@ int main(){
     //affichage des solutions :
     sudoku.affiche_sudoku();
     //cout << sudoku.grille_sol.size() << endl;
+    */
+
+    // ==========================================
+    // ETAPE 1 : GENERATION DE LA GRILLE UNIQUE
+    // ==========================================
+    cout << "--- Generation d'un Sudoku a solution unique en cours... ---" << endl;
+    
+    // On crée un objet Sudoku juste pour utiliser la méthode (l'ordre 3 = 9x9)
+    Sudoku generateur(3); 
+    
+    // Appel de votre fonction
+    Grille maGrilleUnique = generateur.Solution_unique(0.30);
+
+    cout << "\n>>> Grille partielle générée (avec des trous) :" << endl;
+    maGrilleUnique.afficher();
+
+    // ==========================================
+    // ETAPE 2 : VERIFICATION (PREUVE)
+    // ==========================================
+    cout << "\n--- Verification de l'unicite ---" << endl;
+
+    // On crée un nouveau jeu avec cette grille
+    Sudoku verificateur(maGrilleUnique);
+    
+    // IMPORTANT : On active la recherche de TOUTES les solutions
+    verificateur.allSol = true; 
+    
+    // On lance la résolution
+    verificateur.Solution(0);
+
+    // ==========================================
+    // ETAPE 3 : RESULTAT
+    // ==========================================
+    int nbSolutions = verificateur.grille_sol.size();
+    cout << "Nombre de solutions trouvees par le solveur : " << nbSolutions << endl;
+
+    if (nbSolutions == 1) {
+        cout << "VICTOIRE ! La fonction marche correctement." << endl;
+        // Optionnel : Afficher la solution unique trouvée
+        cout << "\nVoici la solution unique :" << endl;
+        verificateur.grille_sol.front().afficher();
+    } else {
+        cout << "ECHEC. La grille a " << nbSolutions << " solutions." << endl;
+    }
 
     return 0;
 }

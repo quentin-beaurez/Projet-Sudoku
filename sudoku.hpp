@@ -51,6 +51,7 @@ class Sudoku
     Sudoku(const Grille& g); // Construction à partir de la classe Grille 
 
     bool Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
+    Grille Solution_unique(float densite_obj = 0.4); // Génère une grille partielle à solution unique
 };
 
 /* Pas besoin de cette fonction : la fonction interne à la classe "Solution" suffit. On peut quand
