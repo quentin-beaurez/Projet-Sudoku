@@ -1,3 +1,4 @@
+#include <Windows.h>
 #include "sudoku.hpp"
 using namespace std;
 

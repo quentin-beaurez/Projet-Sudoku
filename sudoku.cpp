@@ -176,15 +176,84 @@ void Grille::exporter(const string& nomFichier){
 
 }
 
-void Grille::afficher(){
-    int taille = n*n;
+void Grille::afficher() {
+    int taille = n * n;
 
-    for(int i = 0; i<taille;i++){
-        for(int j = 0; j<taille;j++){
-            cout<<(*this)[i][j]<<" ";
+    // Caractères Unicode
+    const char* gTL = u8"╔"; const char* gTR = u8"╗";
+    const char* gBL = u8"╚"; const char* gBR = u8"╝";
+    const char* gH  = u8"═"; const char* gV  = u8"║";
+    const char* gC  = u8"╬"; const char* gTT = u8"╦";
+    const char* gTB = u8"╩"; const char* gTLf = u8"╠";
+    const char* gTRg = u8"╣";
+    const char* sV = u8"│"; const char* sH = u8"─"; const char* sC = u8"┼";
+
+    // BORDURE DU HAUT 
+    cout << gTL;
+    for (int b = 0; b < n; b++) {
+        for (int k = 0; k < n; k++) {
+            cout << gH << gH << gH;     // Largeur de la case
+            if (k < n - 1) cout << gH;  // Largeur de la barre fine │
         }
-        cout<<endl;
+        if (b < n - 1) cout << gTT;     // Jonction barre épaisse ║
     }
+    cout << gTR << endl;
+
+    // CONTENU 
+    for (int i = 0; i < taille; i++) {
+        cout << gV; // Bordure gauche
+        for (int j = 0; j < taille; j++) {
+            // Chiffre
+            if ((*this)[i][j] == 0) cout << "   ";
+            else cout << " " << (*this)[i][j] << " ";
+
+            // Séparateur vertical
+            if ((j + 1) % n == 0) {
+                if (j + 1 < taille) cout << gV; // Barre épaisse
+            } else {
+                cout << sV; // Barre fine
+            }
+        }
+        cout << gV << endl; // Bordure droite
+
+        // SÉPARATEURS HORIZONTAUX
+        if (i < taille - 1) {
+            if ((i + 1) % n == 0) {
+                // Ligne épaisse entre les blocs
+                cout << gTLf;
+                for (int b = 0; b < n; b++) {
+                    for (int k = 0; k < n; k++) {
+                        cout << gH << gH << gH;
+                        if (k < n - 1) cout << gH;
+                    }
+                    if (b < n - 1) cout << gC;
+                }
+                cout << gTRg << endl;
+            } else {
+                // Ligne fine à l'intérieur d'un bloc
+                cout << gV;
+                for (int b = 0; b < n; b++) {
+                    for (int k = 0; k < n; k++) {
+                        cout << sH << sH << sH;
+                        if (k < n - 1) cout << sC;
+                    }
+                    if (b < n - 1) cout << gV;
+                }
+                cout << gV << endl;
+            }
+        }
+    }
+
+    // BORDURE DU BAS 
+    cout << gBL;
+    for (int b = 0; b < n; b++) {
+        for (int k = 0; k < n; k++) {
+            cout << gH << gH << gH;
+            if (k < n - 1) cout << gH;
+        }
+        if (b < n - 1) cout << gTB;
+    }
+    cout << gBR << endl;
 }
 
 
