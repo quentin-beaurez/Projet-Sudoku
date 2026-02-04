@@ -3,6 +3,7 @@
 using namespace std;
 
 int main(){
+    SetConsoleOutputCP(65001);
     /*
     //test affichage et importation de grille
     Grille Test(2);
