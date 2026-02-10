@@ -41,6 +41,7 @@ class Sudoku
     int ordre = 0; // ordre du Sudoku
     int nbcase = 0; // nombre de cases à initialiser
     bool allSol = false; // recherche de toutes les solutions si true 
+    int maxSol = 0; // determine le nombre de solutions qu'on cherche : 0 = infini, sinon on limite (marche couplé avec allSol)
     bool uniqueSol = false; // pour le test d'unicité
     Grille grille_ini ; // grille initiale
     list<Grille> grille_sol; // liste des grilles solutions
@@ -50,8 +51,9 @@ class Sudoku
     Sudoku(int n); // Constructeur par défaut avec l'ordre 
     Sudoku(const Grille& g); // Construction à partir de la classe Grille 
 
+    // Fonctions solutions
     bool Solution(int n = 0); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
-    Grille Solution_unique(float densite_obj = 0.4); // Génère une grille partielle à solution unique
+    Grille Solution_unique(float densite_obj = 0.4, bool force = true); // Génère une grille partielle à solution unique
 };
 
 /* Pas besoin de cette fonction : la fonction interne à la classe "Solution" suffit. On peut quand
