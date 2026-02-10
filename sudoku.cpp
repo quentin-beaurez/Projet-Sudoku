@@ -422,9 +422,17 @@ Grille Sudoku::Solution_unique(float densite_obj){
     cout << "Densité atteinte : " << densite_actuelle << endl;
     cout << "Densité voulue : " << densite_obj << endl;
     
+    //on update la liste de solutions de this en y mettant la grille complète
+    this->grille_sol.clear();
+    this->grille_sol.push_back(grille_complete);
+    
     if (estUnique) {
+        this->grille_ini = g_courante;
+        this->grille_ini.majcasesVides(); //actualisation des cases vides
         return g_courante;
     } else { // cas où on atteint pas la densité cible
+        this->grille_ini = g_precedente;
+        this->grille_ini.majcasesVides(); //actualisation des cases vides
         return g_precedente;
-    }   
+    }  
 }

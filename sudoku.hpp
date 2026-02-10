@@ -50,7 +50,7 @@ class Sudoku
     Sudoku(int n); // Constructeur par défaut avec l'ordre 
     Sudoku(const Grille& g); // Construction à partir de la classe Grille 
 
-    bool Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
+    bool Solution(int n = 0); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
     Grille Solution_unique(float densite_obj = 0.4); // Génère une grille partielle à solution unique
 };
 
