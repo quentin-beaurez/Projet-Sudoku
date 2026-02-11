@@ -335,10 +335,8 @@ void Sudoku::affiche_sudoku(int limite)
     cout << "========================================" << endl;
 }
 
-// Construit une grille à solution unique //
+// Construit une grille à solution unique
 Grille Sudoku::Solution_unique(float densite_obj, bool force){
-    float erreur_admise = 0.03;
-    
     int ordre_ = this->ordre;
     float densite_ = 0.25; // densité de la grille initiale pour trouver facilement une première solution
 
@@ -349,7 +347,6 @@ Grille Sudoku::Solution_unique(float densite_obj, bool force){
     //parametres dont la modification devra etre implantée (apres avoir fini la fct)
     int casesSuppr = 1; // nombres de cases à supprimer par itération
     int itermax = 100;
-    int max_retry = 100;
 
     // ------- ETAPE 1 : on genère une grille pleine -------
     Grille g(ordre_); // construction d'une grille d'ordre 'ordre_'
@@ -360,6 +357,7 @@ Grille Sudoku::Solution_unique(float densite_obj, bool force){
     // On boucle tant qu'on n'a pas généré une grille valide complète
     while(!grille_trouvee){
         g = Grille(ordre_);     // on reset (inutile à l'étape 1 mais sert pour toutes les autres)
+        g.diagonale = this->grille_ini.diagonale; // Activation si nécessaire de la contrainte des diagonales
         g.generation(densite_); // Remplissage partiel de la grille 
 
         Sudoku s(g); 
@@ -374,107 +372,74 @@ Grille Sudoku::Solution_unique(float densite_obj, bool force){
     }
 
     // ------- ETAPE 2 : on fait des trous jusqu'à ce qu'on perde l'unicité -------
-    // initialisation des param de la boucle while à l'extérieur pour pouvoir les utiliser après
-    bool densite_atteinte = false;
-    float densite_reelle_finale = 1.0; // On initialise à 1 (100% de densite)
-    
     Grille g_courante = grille_complete;
-    Grille g_precedente = grille_complete;
+    g_courante.diagonale = this->grille_ini.diagonale; // Copie qui garde l'info si on active la contrainte des diagonales
+    Grille g_precedente = grille_complete; // Sauvegarde de la dernière grille valide
     
-    // On garde en mémoire la meilleure grille valide trouvée au cas où on n'atteint pas l'objectif
-    Grille meilleure_grille = grille_complete;
-    float meilleure_densite = 1.0;
-    
-    // float densite_actuelle;
-    bool estUnique;
-    int securite1 = 0;
-    
-    while (!densite_atteinte && securite1 < max_retry){
+    bool estUnique = true; //la solution est unique
+    int securite = 0; //pour pas que le suppression soit infinie
+
+    // Compteur de cases remplies (au début, la grille est pleine)
+    int cases_remplies_actuelles = taille_totale;
+
+    // Configuration pour le générateur aléatoire
+    static random_device rd;
+    static default_random_engine eng(rd());
+    int taille_cote = ordre_ * ordre_;
+    uniform_int_distribution<int> distrib_coord(0, taille_cote-1);
+
+    while(estUnique && securite < itermax && cases_remplies_actuelles > nombre_cases_cible){
+        securite++;
+
+        // Sauvegarde de l'état actuel (qui est valide et unique)
+        g_precedente = g_courante;
+
+        // Suppression des cases
+        int casesAEnlever = casesSuppr;
+        int tentatives_suppr = 0; //sécurité
         
-        // reset à chaque tentative
-        g_courante = grille_complete;
-        g_precedente = grille_complete; // Sauvegarde de la dernière grille valide
-        
-        bool local_estUnique = true; //la solution est unique
-        int cases_remplies = taille_totale; //compteur de cases remplies
-        int securite2 = 0;
+        while(casesAEnlever > 0 && tentatives_suppr < 100){
+            tentatives_suppr++;
+            int i = distrib_coord(eng);
+            int j = distrib_coord(eng);
 
-        // Configuration pour le générateur aléatoire
-        static random_device rd;
-        static default_random_engine eng(rd());
-        int taille_cote = ordre_ * ordre_;
-        uniform_int_distribution<int> distrib_coord(0, taille_cote-1);
-
-        //boucle pour creuser
-        while(local_estUnique && securite2 < itermax && cases_remplies > nombre_cases_cible){
-            securite2++;
-        
-            // Sauvegarde de l'état actuel (qui est valide et unique)
-            g_precedente = g_courante;
-
-            // Suppression des cases
-            int casesAEnlever = casesSuppr;
-            int tentatives_suppr = 0; //sécurité
-            while(casesAEnlever > 0 && tentatives_suppr < 100){
-                tentatives_suppr++;
-                int i = distrib_coord(eng);
-                int j = distrib_coord(eng);
-
-                if(g_courante[i][j] != 0){ // Si la case n'est pas déjà vide
-                    g_courante[i][j] = 0;  // On la vide
-                    casesAEnlever--;
-                    cases_remplies--;
-                }
-            }
-
-            // Vérification de l'unicité
-            Sudoku testeur(g_courante);
-            testeur.allSol = true; // IMPORTANT : On veut compter les solutions et vérifier qu'il n'y en a qu'une seule
-            testeur.maxSol = 2;
-            testeur.Solution(0); 
-
-            if(testeur.grille_sol.size() != 1){
-                local_estUnique = false; // on a cassé l'unicité
+            if(g_courante[i][j] != 0){ // Si la case n'est pas déjà vide
+                g_courante[i][j] = 0;  // On la vide
+                casesAEnlever--;
+                cases_remplies_actuelles--;
             }
         }
 
-        // on analyse notre tentative
-        float densite_essai;
-        Grille grille_valide_essai; // La grille valide issue de cette tentative
+        // Vérification de l'unicité
+        Sudoku testeur(g_courante);
+        testeur.grille_ini.diagonale = this->grille_ini.diagonale; // Vérifie si c'est un Sudoku Diagonal
+        testeur.allSol = true; // IMPORTANT : On veut compter les solutions et vérifier qu'il n'y en a qu'une seule
+        testeur.Solution(0); 
 
-        if (local_estUnique) {
-            densite_essai = (float)cases_remplies / taille_totale;
-            grille_valide_essai = g_courante;
+        if(testeur.grille_sol.size() == 1){
+            // C'est toujours unique ! On continue la boucle pour enlever d'autres cases
+            estUnique = true;
         } else {
-            // Si pas unique, on revient à la précédente, donc on a 1 case (ou casesSuppr) de plus
-            densite_essai = (float)(cases_remplies + casesSuppr) / taille_totale;
-            grille_valide_essai = g_precedente;
+            // solution plus unique, on a enlevé trop de cases
+            estUnique = false;
         }
-
-        // Est-ce que c'est le meilleur résultat obtenu jusqu'ici ?
-        if (densite_essai < meilleure_densite) {
-            meilleure_densite = densite_essai;
-            meilleure_grille = grille_valide_essai;
-        }
-        
-        if((densite_obj - erreur_admise <= densite_essai) && (densite_essai <= densite_obj + erreur_admise)){
-            densite_atteinte = true;
-            densite_reelle_finale = densite_essai;
-        }
-
-        if(!force){break;}
-        securite1++;
     }
+    float densite_actuelle = (float)cases_remplies_actuelles / taille_totale;
 
-    cout << "Densité atteinte : " << meilleure_densite << endl;
+    cout << "Densité atteinte : " << densite_actuelle << endl;
     cout << "Densité voulue : " << densite_obj << endl;
-  
+    
     //on update la liste de solutions de this en y mettant la grille complète
     this->grille_sol.clear();
     this->grille_sol.push_back(grille_complete);
     
-    this->grille_ini = meilleure_grille;
-    this->grille_ini.majcasesVides(); //actualisation des cases vides
-    
-    return meilleure_grille;
+    if (estUnique) {
+        this->grille_ini = g_courante;
+        this->grille_ini.majcasesVides(); //actualisation des cases vides
+        return g_courante;
+    } else { // cas où on atteint pas la densité cible
+        this->grille_ini = g_precedente;
+        this->grille_ini.majcasesVides(); //actualisation des cases vides
+        return g_precedente;
+    }  
 }

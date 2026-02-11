@@ -30,6 +30,7 @@ class Grille : public vector<vector<suint>>
     void majcasesVides(); // fonction qui actualise la liste des cases vides
     bool estPresent(const vector<suint>& liste, suint valeur); //détermine si 'valeur' est présente dans la liste 'liste'
     vector<suint> listeadmissibles(pair<suint,suint> coord); // fonction qui donne les valeurs admissibles pour une case vide
+    bool diagonale; // Condition supplémentaire --> Sudoku Diagonal
 };
 
 //===========================================================
