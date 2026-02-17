@@ -1,9 +1,10 @@
-#include "sudoku.hpp"
-
 // On inclut Windows.h SEULEMENT si on est sur Windows
 #ifdef _WIN32
     #include <Windows.h>
 #endif
+
+#include "sudoku.hpp"
+
 
 using namespace std;
 
@@ -83,11 +84,25 @@ int main(){
     if (nbSolutions == 1) {
         cout << "VICTOIRE ! La fonction marche correctement." << endl;
         // Optionnel : Afficher la solution unique trouvée
-        cout << "\nVoici la solution unique :" << endl;
-        verificateur.grille_sol.front().afficher();
+        // ==========================================
+        // ETAPE 3bis : PHASE DE JEU 
+        // ==========================================
+        cout << "\nVoulez-vous essayer de resoudre cette grille ? (o/n) : ";
+        char choix;
+        cin >> choix;
+        if (choix == 'o' || choix == 'O') {
+            // On utilise 'verificateur' car il possède déjà la grille 
+            // partielle valide dans son membre 'grille_ini'
+            verificateur.jouer(); 
+        }
+        else {
+            cout << "Fin du programme. Voici la solution attendue :" << endl;
+            verificateur.grille_sol.front().afficher();
+        }
     } else {
         cout << "ECHEC. La grille a " << nbSolutions << " solutions." << endl;
     }
+
 
     // ==========================================================
     // ETAPE 4 : TEST - SUDOKU DIAGONAL

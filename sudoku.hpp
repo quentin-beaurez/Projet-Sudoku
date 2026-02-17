@@ -47,6 +47,7 @@ class Sudoku
     Grille grille_ini ; // grille initiale
     list<Grille> grille_sol; // liste des grilles solutions
     void affiche_sudoku(int limite = 5); // affichage du Sudoku
+    void jouer();  // permet de jouer au sudoku
 
     // Constructeurs 
     Sudoku(int n); // Constructeur par défaut avec l'ordre 

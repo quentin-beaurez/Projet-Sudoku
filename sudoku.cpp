@@ -464,3 +464,60 @@ Grille Sudoku::Solution_unique(float densite_obj, bool force){
         return g_precedente;
     }  
 }
+
+
+void Sudoku::jouer(){
+    int taille_cote = ordre * ordre;
+
+    cout << "--- DEBUT DE LA PARTIE ---" << endl;
+    cout << "Saisissez vos coups sous la forme : 'ligne colonne valeur'" << endl;
+    cout << "Exemple : '4 2 8' (Ligne 4, Col 2, Valeur 8)" << endl;
+    cout << "Entrez '0 0 0' pour quitter." << endl;
+
+    grille_ini.casesVides;
+
+    // Boucle tant qu'il y a des cases à remplir
+    while (!grille_ini.casesVides.empty()){
+        grille_ini.afficher();
+
+        int l_choix, c_choix, val_choix;
+
+        cout<<"\n Votre coup (ligne colonne valeur)";
+        cin>>l_choix>>c_choix>>val_choix;
+
+
+        if (l_choix==0){break;} // Option pour quitter
+
+        // Remettre les indices des cases en indicage info (premier = 0)
+        int i = l_choix - 1;
+        int j = c_choix - 1;
+
+        // Vérification des bornes
+        if (i < 0 || i >= taille_cote || j < 0 || j >= taille_cote) {
+            cout << "[ERREUR] Coordonnees hors de la grille (1 a " << taille_cote << ")." << endl;
+            continue;}
+
+        // Vérification si la case est déjà remplie
+        if(grille_ini[i][j]!=0){
+            cout << "[Erreur] Cette case est déjà remplie !\n";
+            continue;
+        }
+
+        // Vérification des règles de Sudoku (admissiblité)
+        vector<suint> admissibles = grille_ini.listeadmissibles({(suint)i, (suint)j});
+        if (grille_ini.estPresent(admissibles, (suint)val_choix)) {
+            grille_ini[i][j] = val_choix;
+            grille_ini.majcasesVides(); // On met à jour la liste des cases vides
+            cout << "Coup valide ! Bien joue." << endl;
+        } else {
+            cout << "[ERREUR] Le chiffre " << val_choix << " n'est pas autorisé ici (regle ligne/colonne/bloc)." << endl;
+        }
+        }
+        if (grille_ini.casesVides.empty()) {
+        grille_ini.afficher();
+        cout << "FELICITATIONS ! Vous avez complete la grille." << endl;
+        } else {
+            cout << "Partie interrompue." << endl;
+        }
+    
+}
