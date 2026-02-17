@@ -69,6 +69,27 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
         }
     }
 
+    // Gestion des diagonales principales
+
+    if(this->diagonale){
+        if(ligne == col) // Diagonale principale : coeffs (0,0), (1,1), ..., (n,n) de la grille
+        {
+            for(int k = 0; k < taille_cote; k++)
+            {
+                suint val = (*this)[k][k];
+                if (val != 0) est_interdit[val] = true;
+            }
+        }
+        if(ligne + col == taille_cote - 1) // Diagonale secondaire : coeffs (0,n), ..., (n,n^2+1-n) de la grille
+        {
+            for(int k = 0; k < taille_cote; k++)
+            {
+                suint val = (*this)[k][taille_cote - 1 - k];
+                if (val != 0) est_interdit[val] = true;
+            }
+        }
+    }
+
     //On récupère les valeurs admissibles
     vector<suint> resultats;
     for(suint val = 1; val <= taille_cote; val++){
