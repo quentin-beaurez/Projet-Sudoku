@@ -28,6 +28,7 @@ class Grille : public vector<vector<suint>>
     void importer(const string& nomFichier = "grille.txt"); // fonction  pour importer une grille d'un fichier
     void exporter(const string& nomFichier = "grille.txt"); // fonction  pour exporter une grille dans un fichier
     void majcasesVides(); // fonction qui actualise la liste des cases vides
+    void optimiserCasesVides(); // Trie les cases vides pour mettre celles avec le moins de valeurs admissibles en premier
     bool estPresent(const vector<suint>& liste, suint valeur); //détermine si 'valeur' est présente dans la liste 'liste'
     vector<suint> listeadmissibles(pair<suint,suint> coord); // fonction qui donne les valeurs admissibles pour une case vide
     bool diagonale; // Condition supplémentaire --> Sudoku Diagonal
