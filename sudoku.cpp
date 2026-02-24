@@ -491,25 +491,65 @@ Grille Sudoku::Solution_unique(float densite_obj, bool force){
 
 void Sudoku::jouer(){
     int taille_cote = ordre * ordre;
+    Grille grille_depart = grille_ini;
+
+    vector<pair<int, int>> historique;
 
     cout << "--- DEBUT DE LA PARTIE ---" << endl;
     cout << "Saisissez vos coups sous la forme : 'ligne colonne valeur'" << endl;
     cout << "Exemple : '4 2 8' (Ligne 4, Col 2, Valeur 8)" << endl;
-    cout << "Entrez '0 0 0' pour quitter." << endl;
+    cout << "AIDE : Saisissez 'ligne colonne ?' pour remplir la case automatiquement." << endl; 
+    cout << "Entrez '-1 0 0' pour ANNULER |'-2 0 0' pour REINITIALISER | '0 0 0' pour ABANDONNER." << endl;
 
-    grille_ini.casesVides;
+
 
     // Boucle tant qu'il y a des cases à remplir
     while (!grille_ini.casesVides.empty()){
         grille_ini.afficher();
 
-        int l_choix, c_choix, val_choix;
+        int l_choix, c_choix;
+        string v_saisie;
 
         cout<<"\n Votre coup (ligne colonne valeur)";
-        cin>>l_choix>>c_choix>>val_choix;
+        cin>>l_choix>>c_choix>>v_saisie;
 
 
-        if (l_choix==0){break;} // Option pour quitter
+        // Option pour abandonner et afficher la solution
+        if (l_choix == 0) {
+            cout << "\n--- ABANDON ---" << endl;
+            if (!grille_sol.empty()) {
+                cout << "Voici la solution attendue :" << endl;
+                grille_sol.front().afficher();
+            } else {
+                cout << "Oups, aucune solution n'avait ete pre-calculee pour cette grille." << endl;
+            }
+            return; 
+        }
+
+        // Option pour annuler un coup
+        if (l_choix == -1) {
+            if (!historique.empty()) {
+                pair<int, int> dernierCoup = historique.back();
+                historique.pop_back(); 
+
+                grille_ini[dernierCoup.first][dernierCoup.second] = 0; 
+                grille_ini.majcasesVides(); 
+                
+                cout << "[UNDO] Dernier coup annule avec succes." << endl;
+            } else {
+                cout << "[ERREUR] Rien a annuler !" << endl;
+            }
+            continue; 
+        }
+        
+        //Option pour reinitialiser la grille
+        if (l_choix == -2) {
+            grille_ini = grille_depart; 
+            historique.clear();        
+            grille_ini.majcasesVides(); 
+            cout << "[RESET] La grille a ete remise a zero." << endl;
+            continue;
+        }
 
         // Remettre les indices des cases en indicage info (premier = 0)
         int i = l_choix - 1;
@@ -526,10 +566,34 @@ void Sudoku::jouer(){
             continue;
         }
 
+
+        // OPTION AIDE AUTOMATIQUE (?)
+        if (v_saisie == "?") {
+            if (!grille_sol.empty()) {
+                int bonne_valeur = grille_sol.front()[i][j]; 
+                
+                grille_ini[i][j] = bonne_valeur;
+                historique.push_back({i, j}); 
+                grille_ini.majcasesVides();
+                
+                cout << "[AIDE] La case (" << l_choix << "," << c_choix << ") a ete remplie." << endl;
+            } else {
+                cout << "[ERREUR] Pas de solution disponible pour l'aide." << endl;
+            }
+            continue;
+        }
+
+
+        // CAS NORMAL : VAL ENTIER
+        int val_choix = stoi(v_saisie); // Conversion du texte en entier
         // Vérification des règles de Sudoku (admissiblité)
         vector<suint> admissibles = grille_ini.listeadmissibles({(suint)i, (suint)j});
         if (grille_ini.estPresent(admissibles, (suint)val_choix)) {
             grille_ini[i][j] = val_choix;
+
+            // AJOUT À L'HISTORIQUE
+            historique.push_back({i, j});
+
             grille_ini.majcasesVides(); // On met à jour la liste des cases vides
             cout << "Coup valide ! Bien joue." << endl;
         } else {
