@@ -72,10 +72,12 @@ public:
     void majcasesVides();
     void optimiserCasesVides();
     bool Solution(int n = 0);
+    Grille_3D Solution_unique(float densite_obj = 0.4);
     
     // Outils pratiques
     void afficher() const;
     void generation_aleatoire(int cases_a_remplir = 15);
+    void jouer();
 };
 
 

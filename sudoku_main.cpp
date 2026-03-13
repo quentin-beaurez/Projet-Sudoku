@@ -133,11 +133,46 @@ int main(){
 
 
 
-    Grille_3D cube = Grille_3D();
-    cube.generation_aleatoire();
-    cube.afficher();
+    Grille_3D cube;
+    cube.Solution_unique(0.40); 
+    
+    // On copie la grille partielle dans une nouvelle variable
+    Grille_3D vraie_solution = cube;
+    vraie_solution.allSol = false; // On s'arrête à la première solution
+    vraie_solution.Solution(0);    // L'ordinateur résout la grille parfaite
 
-    cube.Solution();
-    cube.afficher();
+    //Jeu
+    cout << "\nVoici votre grille de depart :" << endl;
+    cube.jouer(); 
+
+    //on vérifie à la fin de la partie
+    // Si la liste des cases vides n'est pas vide, c'est que le joueur a tapé 0 0 0 0 pour abandonner ou s'est retrouvé bloqué
+    if (!cube.casesVides.empty()) {
+        cout << "\nVous avez interrompu la partie. Voici la solution qu'il fallait trouver :" << endl;
+        vraie_solution.afficher();
+    } 
+    else {
+        // Le joueur a rempli toutes les cases, on vérifie s'il ne s'est pas trompé
+        bool erreur = false;
+        
+        for (int f = 0; f < 6; f++) {
+            for (int l = 0; l < 4; l++) {
+                for (int c = 0; c < 4; c++) {
+                    // On compare la grille du joueur avec la vraie solution
+                    if (cube.faces[f][l][c] != vraie_solution.faces[f][l][c]) {
+                        erreur = true;
+                    }
+                }
+            }
+        }
+
+        if (erreur) {
+            cout << "\nDommage, vous avez fait une erreur dans vos placements !" << endl;
+            cout << "Voici la solution exacte attendue :" << endl;
+            vraie_solution.afficher();
+        } else {
+            cout << "La grille est parfaitement exacte, bien joue !" << endl;
+        }
+    }
     return 0;
 }

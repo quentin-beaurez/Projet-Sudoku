@@ -418,6 +418,91 @@ bool Grille_3D::Solution(int n) {
     return false;
 }
 
+Grille_3D Grille_3D::Solution_unique(float densite_obj) {
+    int nb_cases_total = 6 * 4 * 4; // 6 faces de 16 cases = 96 cases
+    int cases_cible = ceil(densite_obj * nb_cases_total);
+    
+    // Préparation pour l'aléatoire
+    static random_device rd;
+    static default_random_engine eng(rd());
+
+    cout << "--- Generation d'un 3Doku a solution unique en cours... ---" << endl;
+
+    // Génération d'une grille pleine valide
+    Grille_3D grille_complete;
+    bool complete = false;
+    
+    while (!complete) {
+        Grille_3D g;
+        g.generation_aleatoire(12); // On place 12 chiffres au hasard pour varier les grilles
+        g.allSol = false;           // On s'arrête à la première solution trouvée
+        
+        if (g.Solution(0)) {
+            grille_complete = g;
+            complete = true;
+        }
+    }
+
+    // Préparation de la liste de toutes les coordonnées pour les creuser aléatoirement
+    vector<Coord3D> coords;
+    for (int f = 0; f < 6; f++) {
+        for (int l = 0; l < 4; l++) {
+            for (int c = 0; c < 4; c++) {
+                coords.push_back({f, l, c});
+            }
+        }
+    }
+    // On mélange l'ordre dans lequel on va essayer de vider les cases
+    shuffle(coords.begin(), coords.end(), eng);
+
+    // On essaie d'enlever chaque case une par une
+    Grille_3D g_travail = grille_complete;
+    int cases_restantes = nb_cases_total;
+
+    for (auto& coord : coords) {
+        int f = coord.f;
+        int l = coord.l;
+        int c = coord.c;
+        
+        suint valeur_sauvegardee = g_travail.faces[f][l][c];
+
+        // On tente de vider la case
+        g_travail.faces[f][l][c] = 0;
+        cases_restantes--;
+
+        // On vérifie l'unicité avec un solveur "testeur"
+        Grille_3D testeur;
+        testeur.faces = g_travail.faces; // Copie de la grille à trous
+        testeur.majcasesVides();
+        testeur.optimiserCasesVides(); // accélère bcp la recherche
+        
+        testeur.allSol = true; 
+        testeur.maxSol = 2; // On s'arrête dès qu'on trouve 2 solutions (preuve de non-unicité)
+        testeur.Solution(0);
+
+        if (testeur.solutions.size() != 1) {
+            // La grille n'a plus de solution unique -> On annule.
+            g_travail.faces[f][l][c] = valeur_sauvegardee;
+            cases_restantes++;
+        }
+
+        // Si on a atteint la densité voulue, on arrête de creuser
+        if (cases_restantes <= cases_cible) {
+            break;
+        }
+    }
+
+    float densite_finale = (float)cases_restantes / nb_cases_total;
+    cout << "Generation terminee ! Densite finale : " << densite_finale 
+         << " (" << cases_restantes << " cases remplies sur 96)." << endl;
+
+    // On applique le résultat à notre objet actuel
+    this->faces = g_travail.faces;
+    this->majcasesVides();
+
+    return g_travail;
+}
+
 
 // ---------------------------------------------------------
 // AFFICHAGE ET OUTILS
@@ -515,6 +600,71 @@ void Grille_3D::generation_aleatoire(int cases_a_remplir) {
     majcasesVides();
 }
 
+void Grille_3D::jouer() {
+    cout << "--- DEBUT DE LA PARTIE DE 3DOKU ---" << endl;
+    cout << "Saisissez vos coups sous la forme : 'face ligne colonne valeur'" << endl;
+    cout << "Exemple : '1 4 2 12' (Face 1, Ligne 4, Col 2, Valeur 12)" << endl;
+    cout << "Entrez '0 0 0 0' pour quitter." << endl;
+
+    majcasesVides(); // Sécurité pour être sûr que c'est à jour au lancement de la partie
+
+    // Boucle tant qu'il y a des cases à remplir
+    while (!casesVides.empty()) {
+        afficher();
+
+        int f_choix, l_choix, c_choix, val_choix;
+
+        cout << "\nVotre coup (face ligne colonne valeur) : ";
+        cin >> f_choix >> l_choix >> c_choix >> val_choix;
+
+        // Option pour quitter
+        if (f_choix == 0 && l_choix == 0 && c_choix == 0 && val_choix == 0) {
+            break; 
+        }
+
+        // On garde la face telle quelle (0 à 5), mais on ajuste ligne/colonne pour l'indiçage (0 à 3)
+        int f = f_choix;
+        int l = l_choix - 1;
+        int c = c_choix - 1;
+
+        // Vérification des bornes (Face 0-5, Ligne/Col 1-4)
+        if (f < 0 || f > 5 || l < 0 || l > 3 || c < 0 || c > 3) {
+            cout << "[ERREUR] Coordonnees hors du cube. Face (0-5), Ligne/Col (1-4)." << endl;
+            continue;
+        }
+
+        // Vérification de la valeur saisie (1 à 16)
+        if (val_choix < 1 || val_choix > 16) {
+            cout << "[ERREUR] Valeur interdite pour un 3Doku (doit etre entre 1 et 16)." << endl;
+            continue;
+        }
+
+        // Vérification si la case est déjà remplie
+        if (faces[f][l][c] != 0) {
+            cout << "[ERREUR] Cette case est deja remplie !\n";
+            continue;
+        }
+
+        // Vérification des règles de placement (Anneaux et Face)
+        vector<suint> admissibles = listeadmissibles(f, l, c);
+        
+        if (find(admissibles.begin(), admissibles.end(), (suint)val_choix) != admissibles.end()) {
+            faces[f][l][c] = val_choix;
+            majcasesVides(); // On met à jour la liste des cases vides
+            cout << "Coup valide ! Bien joue." << endl;
+        } else {
+            cout << "[ERREUR] Le chiffre " << val_choix << " n'est pas autorise ici (conflit sur la face ou l'anneau)." << endl;
+        }
+    }
+
+    // Fin de boucle : vérification de victoire ou d'abandon
+    if (casesVides.empty()) {
+        afficher();
+        cout << "FELICITATIONS ! Vous avez complete le 3Doku." << endl;
+    } else {
+        cout << "Partie interrompue." << endl;
+    }
+}
 
 //========================================
 // Classe Sudoku =========================
