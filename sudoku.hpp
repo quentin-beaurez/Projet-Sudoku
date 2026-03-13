@@ -34,6 +34,51 @@ class Grille : public vector<vector<suint>>
     bool diagonale; // Condition supplémentaire --> Sudoku Diagonal
 };
 
+
+//===========================================================
+// classe 3Doku =============================================
+//===========================================================
+
+// Structure pour stocker facilement les coordonnées 3Doku
+struct Coord3D {
+    int f; // Face (0 à 5)
+    int l; // Ligne (0 à 3)
+    int c; // Colonne (0 à 3)
+};
+
+
+class Grille_3D
+{
+public:
+    // 6 faces, chacune est une matrice 4x4
+    vector<vector<vector<suint>>> faces; 
+    
+    vector<Coord3D> casesVides; 
+    
+    bool allSol = false;
+    int maxSol = 0;
+    vector<vector<vector<vector<suint>>>> solutions; 
+
+    Grille_3D(); // Constructeur
+    
+    // Outils géométriques pour le Cube
+    void get_XYZ(int f, int l, int c, int &x, int &y, int &z) const;
+    bool in_band_Z(int f) const;
+    bool in_band_X(int f) const;
+    bool in_band_Y(int f) const;
+
+    // Méthodes de résolution (à adapter des fonctions pré-existantes)
+    vector<suint> listeadmissibles(int f, int l, int c) const;
+    void majcasesVides();
+    void optimiserCasesVides();
+    bool Solution(int n = 0);
+    
+    // Outils pratiques
+    void afficher() const;
+    void generation_aleatoire(int cases_a_remplir = 15);
+};
+
+
 //===========================================================
 // classe Sudoku ============================================
 //===========================================================

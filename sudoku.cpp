@@ -7,6 +7,7 @@
 #include <random> 
 #include <list>
 #include <fstream>
+#include <string>
 
 
 using namespace std;
@@ -290,6 +291,228 @@ void Grille::afficher() {
         if (b < n - 1) cout << gTB;
     }
     cout << gBR << endl;
+}
+
+
+//========================================
+// Classe 3Doku ==========================
+// =======================================
+
+Grille_3D::Grille_3D() {
+    // Initialisation d'un cube vide (6 faces, 4 lignes, 4 colonnes, remplies de 0)
+    faces.resize(6, vector<vector<suint>>(4, vector<suint>(4, 0)));
+    majcasesVides();
+}
+
+// ----------------------------------------------------------------------
+// GEOMETRIE DU CUBE
+// Patron : 0=Haut, 1=Face, 2=Droite, 3=Dos, 4=Gauche, 5=Bas
+// ----------------------------------------------------------------------
+void Grille_3D::get_XYZ(int f, int l, int c, int &x, int &y, int &z) const {
+    switch(f) { //manière plus jolie d'écrire plein de if .. else if ...
+        case 0: z = 3; y = 3 - l; x = c; break;     // haut
+        case 1: y = 0; z = 3 - l; x = c; break;     // face
+        case 2: x = 3; z = 3 - l; y = c; break;     // droite
+        case 3: y = 3; z = 3 - l; x = 3 - c; break; // dos
+        case 4: x = 0; z = 3 - l; y = 3 - c; break; // gauche
+        case 5: z = 0; y = l;     x = c; break;     // bas
+    }
+}
+
+// Définition des 3 anneaux tournant autour du cube 
+bool Grille_3D::in_band_Z(int f) const { return f==1 || f==2 || f==3 || f==4; } // Anneaux horizontaux
+bool Grille_3D::in_band_X(int f) const { return f==0 || f==1 || f==5 || f==3; } // Anneaux verticaux (Avant/Arrière)
+bool Grille_3D::in_band_Y(int f) const { return f==0 || f==2 || f==5 || f==4; } // Anneaux verticaux (Gauche/Droite)
+
+// ---------------------------------------------------------
+// REGLES DE RESOLUTION DU 3DOKU
+// ---------------------------------------------------------
+vector<suint> Grille_3D::listeadmissibles(int f_cible, int l_cible, int c_cible) const {
+    vector<bool> est_interdit(17, false); // Nombres 1 à 16
+    
+    // Contrainte de FACE (Chaque face doit contenir de 1 à 16)
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 4; j++){
+            suint val = faces[f_cible][i][j];
+            if(val != 0) est_interdit[val] = true;
+        }
+    }
+    
+    // Contraintes des ANNEAUX (lignes faisant le tour du cube)
+    int x_cible, y_cible, z_cible;
+    get_XYZ(f_cible, l_cible, c_cible, x_cible, y_cible, z_cible);
+    
+    bool check_Z = in_band_Z(f_cible);
+    bool check_X = in_band_X(f_cible);
+    bool check_Y = in_band_Y(f_cible);
+    
+    for(int f = 0; f < 6; f++){
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                suint val = faces[f][i][j];
+                if(val == 0) continue;
+                
+                int x, y, z;
+                get_XYZ(f, i, j, x, y, z);
+                
+                // Si la case partagée appartient au même anneau que notre cible, c'est interdit
+                if (check_Z && in_band_Z(f) && z == z_cible) est_interdit[val] = true;
+                if (check_X && in_band_X(f) && x == x_cible) est_interdit[val] = true;
+                if (check_Y && in_band_Y(f) && y == y_cible) est_interdit[val] = true;
+            }
+        }
+    }
+    
+    vector<suint> resultats;
+    for(suint val = 1; val <= 16; val++){
+        if(!est_interdit[val]) resultats.push_back(val);
+    }
+    return resultats;
+}
+
+
+// ---------------------------------------------------------
+// FONCTIONS DE RESOLUTION (Identique à la classe Sudoku classique)
+// ---------------------------------------------------------
+void Grille_3D::majcasesVides() {
+    casesVides.clear();
+    for(int f = 0; f < 6; f++){
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                if(faces[f][i][j] == 0) casesVides.push_back({f, i, j});
+            }
+        }
+    }
+}
+
+void Grille_3D::optimiserCasesVides() {
+    sort(casesVides.begin(), casesVides.end(), 
+        [this](const Coord3D& a, const Coord3D& b) {
+            return listeadmissibles(a.f, a.l, a.c).size() < 
+                   listeadmissibles(b.f, b.l, b.c).size();
+        }
+    );
+}
+
+bool Grille_3D::Solution(int n) {
+    int N = casesVides.size();
+    if(n == N) return true;
+    
+    int f = casesVides[n].f;
+    int l = casesVides[n].l;
+    int c = casesVides[n].c;
+    
+    vector<suint> admissibles = listeadmissibles(f, l, c);
+    
+    for(suint val : admissibles) {
+        faces[f][l][c] = val;
+        if (Solution(n + 1)) {
+            if (n < N - 1) return true;
+            
+            solutions.push_back(faces);
+            if (!allSol) return true;
+            if (maxSol > 0 && solutions.size() >= maxSol) return true;
+        }
+        faces[f][l][c] = 0; // Backtracking
+    }
+    return false;
+}
+
+
+// ---------------------------------------------------------
+// AFFICHAGE ET OUTILS
+// ---------------------------------------------------------
+
+void Grille_3D::afficher() const {
+    // Caractères Unicode pour l'affichage (encodage UTF-8)
+    const char* gTL = u8"╔"; const char* gTR = u8"╗";
+    const char* gBL = u8"╚"; const char* gBR = u8"╝";
+    const char* gH  = u8"═"; const char* gV  = u8"║";
+    const char* gT_down  = u8"╤"; const char* gT_up   = u8"╧";
+    const char* gT_right = u8"╟"; const char* gT_left = u8"╢";
+    const char* sH = u8"─"; const char* sV = u8"│"; const char* sC = u8"┼";
+
+    // Pré-calcul des segments horizontaux pour simplifier le code
+    string h3 = string(gH) + gH + gH; // ═══
+    string sh3 = string(sH) + sH + sH; // ───
+
+    // Fonction lambda pour générer une ligne visuelle (de 0 à 8) d'une face spécifique
+    auto get_line = [&](int f, int v_line) -> string {
+        if (f == -1) return string(17, ' '); // Espace vide (largeur exacte d'une face)
+        
+        string res = "";
+        if (v_line == 0) { // Bordure haute
+            res += gTL;
+            for(int c=0; c<4; c++) { res += h3; if(c<3) res += gT_down; }
+            res += gTR;
+        } else if (v_line == 8) { // Bordure basse
+            res += gBL;
+            for(int c=0; c<4; c++) { res += h3; if(c<3) res += gT_up; }
+            res += gBR;
+        } else if (v_line % 2 == 0) { // Lignes de séparation horizontales internes (fines)
+            res += gT_right;
+            for(int c=0; c<4; c++) { res += sh3; if(c<3) res += sC; }
+            res += gT_left;
+        } else { // Lignes contenant les valeurs
+            int r = v_line / 2;
+            res += gV;
+            for(int c=0; c<4; c++) {
+                suint val = faces[f][r][c];
+                // Formatage des nombres de 1 à 16 pour qu'ils prennent toujours 3 espaces
+                if (val == 0) res += "   ";
+                else if (val < 10) res += " " + to_string(val) + " ";
+                else res += " " + to_string(val); 
+                
+                if (c < 3) res += sV; // Séparateur vertical fin
+            }
+            res += gV;
+        }
+        return res;
+    };
+
+    // Affichage de la FACE 0 (Haut)
+    cout << "\n                  [ FACE 0 (Haut) ]\n";
+    for (int i = 0; i <= 8; i++) {
+        // On affiche un espace vide puis la face 0
+        cout << get_line(-1, i) << "  " << get_line(0, i) << "\n";
+    }
+
+    // Affichage de l'anneau central : FACE 4, 1, 2, 3
+    cout << "\n[ FACE 4 (Ga.) ]   [ FACE 1 (Av.) ]   [ FACE 2 (Dr.) ]   [ FACE 3 (Ar.) ]\n";
+    for (int i = 0; i <= 8; i++) {
+        cout << get_line(4, i) << "  " << get_line(1, i) << "  " << get_line(2, i) << "  " << get_line(3, i) << "\n";
+    }
+
+    // Affichage de la FACE 5 (Bas)
+    cout << "\n                  [ FACE 5 (Bas)  ]\n";
+    for (int i = 0; i <= 8; i++) {
+        // On affiche un espace vide puis la face 5
+        cout << get_line(-1, i) << "  " << get_line(5, i) << "\n";
+    }
+    cout << endl;
+}
+
+void Grille_3D::generation_aleatoire(int cases_a_remplir) {
+    static random_device rd;
+    static default_random_engine eng(rd());
+    uniform_int_distribution<int> dist_f(0, 5);
+    uniform_int_distribution<int> dist_c(0, 3);
+    uniform_int_distribution<int> dist_v(1, 16);
+    
+    int remplies = 0, secu = 0;
+    while(remplies < cases_a_remplir && secu < 1000) {
+        secu++;
+        int f = dist_f(eng), l = dist_c(eng), c = dist_c(eng);
+        if(faces[f][l][c] == 0) {
+            int val = dist_v(eng);
+            vector<suint> adm = listeadmissibles(f, l, c);
+            if(find(adm.begin(), adm.end(), val) != adm.end()) {
+                faces[f][l][c] = val;
+                remplies++;
+            }
+        }
+    }
+    majcasesVides();
 }
 
 

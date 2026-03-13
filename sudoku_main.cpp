@@ -49,14 +49,14 @@ int main(){
 
     // ==========================================
     // ETAPE 1 : GENERATION DE LA GRILLE UNIQUE
-    // ==========================================
+    /*/ ==========================================
     cout << "--- Generation d'un Sudoku a solution unique en cours... ---" << endl;
     
     // On crée un objet Sudoku juste pour utiliser la méthode (l'ordre 3 = 9x9)
     Sudoku generateur(3); 
     
     // Appel de votre fonction
-    Grille maGrilleUnique = generateur.Solution_unique(0.30);
+    Grille maGrilleUnique = generateur.Solution_unique(0.25);
 
     cout << "\n>>> Grille partielle générée (avec des trous) :" << endl;
     maGrilleUnique.afficher();
@@ -81,27 +81,8 @@ int main(){
     int nbSolutions = verificateur.grille_sol.size();
     cout << "Nombre de solutions trouvees par le solveur : " << nbSolutions << endl;
 
-    if (nbSolutions == 1) {
-        cout << "VICTOIRE ! La fonction marche correctement." << endl;
-        // Optionnel : Afficher la solution unique trouvée
-        // ==========================================
-        // ETAPE 3bis : PHASE DE JEU 
-        // ==========================================
-        cout << "\nVoulez-vous essayer de resoudre cette grille ? (o/n) : ";
-        char choix;
-        cin >> choix;
-        if (choix == 'o' || choix == 'O') {
-            // On utilise 'verificateur' car il possède déjà la grille 
-            // partielle valide dans son membre 'grille_ini'
-            verificateur.jouer(); 
-        }
-        else {
-            cout << "Fin du programme. Voici la solution attendue :" << endl;
-            verificateur.grille_sol.front().afficher();
-        }
-    } else {
-        cout << "ECHEC. La grille a " << nbSolutions << " solutions." << endl;
-    }
+    cout << "\nVoici la solution unique :" << endl;
+    verificateur.grille_sol.front().afficher();
 
 
     // ==========================================================
@@ -148,6 +129,15 @@ int main(){
     else {
         cout << ">>> RATE. Pas unique (" << nbSolDiag << " solutions)." << endl;
     }
+    */
 
+
+
+    Grille_3D cube = Grille_3D();
+    cube.generation_aleatoire();
+    cube.afficher();
+
+    cube.Solution();
+    cube.afficher();
     return 0;
 }
