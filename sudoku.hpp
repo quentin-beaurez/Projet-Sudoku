@@ -103,13 +103,9 @@ class Sudoku
 
     // Fonctions solutions
     bool Solution(int n = 0); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
-    Grille Solution_unique(float densite_obj = 0.4, bool force = true); // Génère une grille partielle à solution unique
+    Grille Solution_unique(float densite_obj = 0.4); // Génère une grille partielle à solution unique
 };
 
-/* Pas besoin de cette fonction : la fonction interne à la classe "Solution" suffit. On peut quand
-même l'implémenter mais le faire dans le main semble etre plus adapté.
-Sudoku Solution(int n); // Recherches de solutions du Sudoku, n représente l'indice d'une case vide
-*/
 #endif 
 
 //test commit

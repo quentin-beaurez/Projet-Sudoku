@@ -50,7 +50,7 @@ int main(){
     // ==========================================
     // ETAPE 1 : GENERATION DE LA GRILLE UNIQUE
     // ==========================================
-    cout << "--- Generation d'un Sudoku a solution unique en cours... ---" << endl;
+    cout << "--- Generation d'un Sudoku à solution unique en cours... ---" << endl;
     
     // On crée un objet Sudoku juste pour utiliser la méthode (l'ordre 3 = 9x9)
     Sudoku generateur(3); 

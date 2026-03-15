@@ -16,7 +16,7 @@ using namespace std;
 // classe Grille ============================================
 //===========================================================
 
-//constructeur d'une grille d'ordre quelconque (grille remplie de zéros <=> vide)
+//constructeur d'une grille d'ordre quelconque (grille remplie de zéros <=> vide) //
 Grille::Grille(int ordre){
     this->n = ordre; //on fixe l'ordre de la grille
     int taille_cote = n*n; //on calcule les dimensions de la grille. ex : n = 3 donne une grille de 9x9
@@ -29,7 +29,7 @@ Grille::Grille(int ordre){
     }
 }
 
-//constructeur de grille par défaut : ordre 3 (appelle le constructeur ci-dessus)
+//constructeur de grille par défaut : ordre 3 (appelle le constructeur ci-dessus) //
 Grille::Grille() : Grille(3){}
 
 // Détermine si une valeur est présente dans une liste //
@@ -37,7 +37,7 @@ bool Grille::estPresent(const vector<suint>& liste, suint valeur) {
     return find(liste.begin(), liste.end(), valeur) != liste.end();
 }
 
-// Détermine l'ensemble des valeurs admissibles pour une case dont les coordonnées sont données //
+// Détermine l'ensemble des valeurs admissibles pour une case dont les coordonnées sont données en argument sous la forme (i,j) //
 vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
     suint ligne = coord.first;
     suint col = coord.second;
@@ -101,7 +101,7 @@ vector<suint> Grille::listeadmissibles(pair<suint,suint> coord){
     return resultats;
 }
 
-//fonction permettant de mettre à jour les cases vides de la grille
+//fonction permettant de mettre à jour les cases vides de la grille //
 void Grille::majcasesVides(){
     vector<pair<suint,suint>> cases;
     int taille_cote = (*this).n * (*this).n;
@@ -115,7 +115,8 @@ void Grille::majcasesVides(){
     (*this).casesVides = cases;
 }
 
-// Trie les cases vides pour mettre celles avec le moins d'options en premier
+// Range le vecteur des cases vides en fonction du nombre d'options de remplissage en ordre croissant // 
+// (met les cases avec la plus petite liste de valeurs admissibles en premier dans le vecteur 'casesVides' //
 void Grille::optimiserCasesVides() {
     // On utilise une fonction lambda pour trier
     sort(casesVides.begin(), casesVides.end(), 
@@ -125,9 +126,13 @@ void Grille::optimiserCasesVides() {
     );
 }
 
-//Génère une grille aléatoire : pas forcément résolvable, avec des valeurs aléatoires dans des positions aléatoires, en densité précisée
+//Génère une grille aléatoire : pas forcément résolvable, avec des valeurs aléatoires dans des positions aléatoires, en densité précisée //
 void Grille::generation(float densite){
-    //Grille grille(ordre); //on construit une grille d'ordre 'ordre' vide à l'aide du constructeur de la classe
+    /*
+        Param : - float densite : nombre entre 0 et 1 qui indique la proportion de cases remplies
+                                  par rapport au nombre de cases vides que l'on veut obtenir.
+
+    */
     
     //détermination du nombre de cases remplies initial ( = 0)
     int taille_cote = this->n * this->n;
@@ -172,6 +177,7 @@ void Grille::generation(float densite){
 }
 
 // Permet d'importer une grille depuis un fichier texte //
+// le fichier texte ne doit contenir que la grille et la grille doit être dans un format tel que seuls les chiffres apparaissent et ils doivent être séparés par un espace. //
 void Grille::importer(const string& nomFichier){
     ifstream fichier(nomFichier);    //ouverture du fichier en lecture
 
@@ -192,6 +198,7 @@ void Grille::importer(const string& nomFichier){
 }
 
 // Permet d'exporter une grille dans un fichier texte //
+// Exporte dans le format précisé ci-dessus //
 void Grille::exporter(const string& nomFichier){
     ofstream fichier(nomFichier);    //ouverture du fichier en écriture
 
@@ -295,20 +302,32 @@ void Grille::afficher() {
 
 
 //========================================
-// Classe 3Doku ==========================
+// Classe Grille_3D (pour le 3Doku) ======
 // =======================================
 
+// constructeur par défaut de la classe Grille_3D //
 Grille_3D::Grille_3D() {
     // Initialisation d'un cube vide (6 faces, 4 lignes, 4 colonnes, remplies de 0)
     faces.resize(6, vector<vector<suint>>(4, vector<suint>(4, 0)));
     majcasesVides();
 }
 
-// ----------------------------------------------------------------------
-// GEOMETRIE DU CUBE
-// Patron : 0=Haut, 1=Face, 2=Droite, 3=Dos, 4=Gauche, 5=Bas
-// ----------------------------------------------------------------------
+// ---------------------------------------------------------- //
+// GEOMETRIE DU CUBE                                          //
+// Patron : 0=Haut, 1=Face, 2=Droite, 3=Dos, 4=Gauche, 5=Bas  //
+// ---------------------------------------------------------- //
+
+// Permet de passer d'un système de coordonnées facile à utiliser pour l'utilisateur à des coordonnées spatiales plus pratiques pour l'implémentation //
+// on associe un repère tridimensionnel au cube //
 void Grille_3D::get_XYZ(int f, int l, int c, int &x, int &y, int &z) const {
+    /*
+    Param : - int f : la face sur laquelle se trouve la case d'intérêt
+            - int l : la ligne sur laquelle se trouve la case d'intérêt
+            - int c : la colonne sur laquelle se trouve la case d'intérêt
+            - int x : variable dans laquelle on stocke la nouvelle composante de coordonnée
+            - int y : variable dans laquelle on stocke la nouvelle composante de coordonnée
+            - int z : variable dans laquelle on stocke la nouvelle composante de coordonnée
+    */
     switch(f) { //manière plus jolie d'écrire plein de if .. else if ...
         case 0: z = 3; y = 3 - l; x = c; break;     // haut
         case 1: y = 0; z = 3 - l; x = c; break;     // face
@@ -319,7 +338,8 @@ void Grille_3D::get_XYZ(int f, int l, int c, int &x, int &y, int &z) const {
     }
 }
 
-// Définition des 3 anneaux tournant autour du cube 
+// Définition des 3 anneaux tournant autour du cube //
+// Dit dans quel anneau la face 'int f' se trouve // 
 bool Grille_3D::in_band_Z(int f) const { return f==1 || f==2 || f==3 || f==4; } // Anneaux horizontaux
 bool Grille_3D::in_band_X(int f) const { return f==0 || f==1 || f==5 || f==3; } // Anneaux verticaux (Avant/Arrière)
 bool Grille_3D::in_band_Y(int f) const { return f==0 || f==2 || f==5 || f==4; } // Anneaux verticaux (Gauche/Droite)
@@ -327,7 +347,15 @@ bool Grille_3D::in_band_Y(int f) const { return f==0 || f==2 || f==5 || f==4; } 
 // ---------------------------------------------------------
 // REGLES DE RESOLUTION DU 3DOKU
 // ---------------------------------------------------------
+
+// Détermine l'ensemble des valeurs admissibles pour une case dont la face, ligne et colonne sont données en argument //
 vector<suint> Grille_3D::listeadmissibles(int f_cible, int l_cible, int c_cible) const {
+    /*
+    Param :    - int f_cible : numéro de la face sur laquelle se trouve la case cible
+               - int l_cible : numéro de la ligne sur laquelle se trouve la case cible
+               - int c_cible : numéro de la colonne sur laquelle se trouve la case cible
+
+    */
     vector<bool> est_interdit(17, false); // Nombres 1 à 16
     
     // Contrainte de FACE (Chaque face doit contenir de 1 à 16)
@@ -371,9 +399,11 @@ vector<suint> Grille_3D::listeadmissibles(int f_cible, int l_cible, int c_cible)
 }
 
 
-// ---------------------------------------------------------
+// ----------------------------------------------------------------
 // FONCTIONS DE RESOLUTION (Identique à la classe Sudoku classique)
-// ---------------------------------------------------------
+// ----------------------------------------------------------------
+
+//fonction permettant de mettre à jour les cases vides du 3Doku //
 void Grille_3D::majcasesVides() {
     casesVides.clear();
     for(int f = 0; f < 6; f++){
@@ -385,6 +415,7 @@ void Grille_3D::majcasesVides() {
     }
 }
 
+// Range le vecteur des cases vides en fonction du nombre d'options de remplissage en ordre croissant // 
 void Grille_3D::optimiserCasesVides() {
     sort(casesVides.begin(), casesVides.end(), 
         [this](const Coord3D& a, const Coord3D& b) {
@@ -394,7 +425,12 @@ void Grille_3D::optimiserCasesVides() {
     );
 }
 
+// Détermine (toutes) les solutions d'une grille partielle //
 bool Grille_3D::Solution(int n) {
+    /*
+    Param : - int n : indice (dans le vecteur casesVides) de la premiere case vide par laquelle on veut commencer la résolution du 3Doku
+                      (mettre n = 0 pour résoudre tout le 3Doku)
+    */
     int N = casesVides.size();
     if(n == N) return true;
     
@@ -418,7 +454,11 @@ bool Grille_3D::Solution(int n) {
     return false;
 }
 
+// Construit un 3Doku à solution unique //
 Grille_3D Grille_3D::Solution_unique(float densite_obj) {
+    /*
+    Param : - float densite_obj : nombre entre 0 et 1 qui indique la proportion de cases remplies par rapport au nombre de cases vides que l'on veut obtenir.
+    */
     int nb_cases_total = 6 * 4 * 4; // 6 faces de 16 cases = 96 cases
     int cases_cible = ceil(densite_obj * nb_cases_total);
     
@@ -508,6 +548,7 @@ Grille_3D Grille_3D::Solution_unique(float densite_obj) {
 // AFFICHAGE ET OUTILS
 // ---------------------------------------------------------
 
+// Permet d'afficher un 3Doku sous forme de patron //
 void Grille_3D::afficher() const {
     // Caractères Unicode pour l'affichage (encodage UTF-8)
     const char* gTL = u8"╔"; const char* gTR = u8"╗";
@@ -577,7 +618,11 @@ void Grille_3D::afficher() const {
     cout << endl;
 }
 
+//Génère une grille aléatoire : pas forcément résolvable, avec des valeurs aléatoires dans des positions aléatoires, en densité précisée //
 void Grille_3D::generation_aleatoire(int cases_a_remplir) {
+    /*
+        Param : - int cases_a_remplir : nombre de cases que l'on veut remplir.
+    */
     static random_device rd;
     static default_random_engine eng(rd());
     uniform_int_distribution<int> dist_f(0, 5);
@@ -600,6 +645,7 @@ void Grille_3D::generation_aleatoire(int cases_a_remplir) {
     majcasesVides();
 }
 
+// Fonction permettant de remplir un 3Doku de manière interractive //
 void Grille_3D::jouer() {
     cout << "--- DEBUT DE LA PARTIE DE 3DOKU ---" << endl;
     cout << "Saisissez vos coups sous la forme : 'face ligne colonne valeur'" << endl;
@@ -670,10 +716,12 @@ void Grille_3D::jouer() {
 // Classe Sudoku =========================
 // =======================================
 
-// Constructeurs //
-Sudoku :: Sudoku(int n) : ordre(n), grille_ini(n) {}// Constructeur par défaut 
+// Constructeur par défaut //
+// int n est l'ordre du sudoku voulu //
+Sudoku :: Sudoku(int n) : ordre(n), grille_ini(n) {}
 
-Sudoku :: Sudoku(const Grille& g): grille_ini(g), ordre(g.n) // Constructeur à partir de la classe Grille 
+// Constructeur à partir d'une Grille //
+Sudoku :: Sudoku(const Grille& g): grille_ini(g), ordre(g.n) 
 {
     this->grille_ini.majcasesVides();
 }
@@ -682,6 +730,11 @@ Sudoku :: Sudoku(const Grille& g): grille_ini(g), ordre(g.n) // Constructeur à 
 // Détermine (toutes) les solutions d'une grille partielle //
 bool Sudoku::Solution(int n)
 {
+    /*
+    Param : - int n : indice (dans le vecteur casesVides) de la premiere case vide par laquelle on veut commencer la résolution du sudoku
+                      (mettre n = 0 pour résoudre tout le sudoku)
+    */
+
     int N = grille_ini.casesVides.size();
     if(n==N) // Condition d'arrêt si n = N 
     {
@@ -712,9 +765,12 @@ bool Sudoku::Solution(int n)
 }
 
 
-// Affichage de la solution //
+// Affichage des 'limites' solutions d'un sudoku //
 void Sudoku::affiche_sudoku(int limite) 
 {
+    /*
+    Param : - int limite : nombre de solutions que l'on veut afficher (a permit de visualiser la recherche de solutions d'un sudoku)
+    */
     cout << "========================================" << endl;
     cout << "          GRILLE INITIALE" << endl;
     cout << "========================================" << endl;
@@ -740,8 +796,11 @@ void Sudoku::affiche_sudoku(int limite)
 }
 
 // Construit une grille à solution unique
-Grille Sudoku::Solution_unique(float densite_obj, bool force){
-    
+Grille Sudoku::Solution_unique(float densite_obj){
+    /*
+    Param : - float densite_obj : nombre entre 0 et 1 qui indique la proportion de cases remplies par rapport au nombre de cases vides que l'on veut obtenir.
+    */
+
     // Paramètres
     int ordre_ = this->ordre;
     float densite_init = 0.30; 
@@ -860,8 +919,7 @@ Grille Sudoku::Solution_unique(float densite_obj, bool force){
     return meilleure_grille;
 }
 
-
-
+// Fonction permettant de remplir un sudoku de manière interractive //
 void Sudoku::jouer(){
     int taille_cote = ordre * ordre;
     Grille grille_depart = grille_ini;
