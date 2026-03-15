@@ -56,7 +56,7 @@ int main(){
     Sudoku generateur(3); 
     
     // Appel de votre fonction
-    Grille maGrilleUnique = generateur.Solution_unique(0.25);
+    Grille maGrilleUnique = generateur.Solution_unique(0.3);
 
     cout << "\n>>> Grille partielle générée (avec des trous) :" << endl;
     maGrilleUnique.afficher();
@@ -99,7 +99,7 @@ int main(){
     geneDiag.grille_ini.diagonale = true;
 
     cout << "Generation d'une grille diagonale (être un peu patient sur le temps que ca génère) ..." << endl;
-    Grille gDiag = geneDiag.Solution_unique(0.4);
+    Grille gDiag = geneDiag.Solution_unique(0.3);
     gDiag.diagonale = true;
 
     cout << "\n>>> Grille partielle générée (avec des trous) : " << endl;
@@ -134,7 +134,7 @@ int main(){
 
     
     Grille_3D cube;
-    cube.Solution_unique(0.40); 
+    cube.Solution_unique(0.35); 
     
     // On copie la grille partielle dans une nouvelle variable
     Grille_3D vraie_solution = cube;
