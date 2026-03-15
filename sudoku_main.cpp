@@ -134,7 +134,7 @@ int main(){
 
     
     Grille_3D cube;
-    cube.Solution_unique(0.35); 
+    cube.Solution_unique(0.4); 
     
     // On copie la grille partielle dans une nouvelle variable
     Grille_3D vraie_solution = cube;
