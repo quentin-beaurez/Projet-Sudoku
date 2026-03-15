@@ -13,20 +13,20 @@ int main(){
     #ifdef _WIN32
         SetConsoleOutputCP(65001);
     #endif
+    
+    //affichage et importation de grille
     /*
-    //test affichage et importation de grille
     Grille Test(2);
     Test.importer("grille1.txt");
     Test.afficher();
-
-    //test generation de grille
+    */ 
+   
+    //generation de grille
     Grille gr(3);
     gr.generation();
     gr.afficher();
     
-    //==============================================
-    //Test des fonctions de résolution d'un Sudoku :
-    //==============================================
+    // - Test des fonctions de résolution d'un Sudoku - //
     //création de la grille initiale
     Grille g(3);
     g.generation(0.25);
@@ -40,13 +40,14 @@ int main(){
     sudoku.allSol = true; //on dit qu'on veut chercher toutes les solutions
 
     cout << "Recherche des solutions..." << endl;
-    sudoku.Solution(0); //on cherche toutes les solutions en commençant par la première case vide de la grille
+    sudoku.Solution(0);
 
     //affichage des solutions :
     sudoku.affiche_sudoku();
-    //cout << sudoku.grille_sol.size() << endl;
-    */
+    //cout << "Nombre de solutions trouvées :" << sudoku.grille_sol.size() << endl;
+    
 
+    
     // ==========================================
     // ETAPE 1 : GENERATION DE LA GRILLE UNIQUE
     // ==========================================
@@ -55,22 +56,23 @@ int main(){
     // On crée un objet Sudoku juste pour utiliser la méthode (l'ordre 3 = 9x9)
     Sudoku generateur(3); 
     
-    // Appel de votre fonction
+    // Appel de la fonction solution unique
     Grille maGrilleUnique = generateur.Solution_unique(0.3);
 
     cout << "\n>>> Grille partielle générée (avec des trous) :" << endl;
     maGrilleUnique.afficher();
 
     // ==========================================
-    // ETAPE 2 : VERIFICATION (PREUVE)
+    // ETAPE 2 : VERIFICATION (PREUVE de l'unicité)
     // ==========================================
     cout << "\n--- Verification de l'unicite ---" << endl;
 
     // On crée un nouveau jeu avec cette grille
     Sudoku verificateur(maGrilleUnique);
     
-    // IMPORTANT : On active la recherche de TOUTES les solutions
-    verificateur.allSol = true; 
+    // IMPORTANT : On active la recherche de TOUTES les solutions (on s'arrête à 2 car ça suffit pour prouver qu'il n'y a pas unicité)
+    verificateur.allSol = true;
+    verificateur.maxSol = 2;
     
     // On lance la résolution
     verificateur.Solution(0);
@@ -78,15 +80,25 @@ int main(){
     // ==========================================
     // ETAPE 3 : RESULTAT
     // ==========================================
-    int nbSolutions = verificateur.grille_sol.size();
-    cout << "Nombre de solutions trouvees par le solveur : " << nbSolutions << endl;
+    if (verificateur.grille_sol.size() != 1){
+        cout << "ERREUR : il n'y a pas unicité" << endl;
+    } else {
+        cout << "\nVoici la solution unique :" << endl;
+        verificateur.grille_sol.front().afficher();
+    }
 
-    cout << "\nVoici la solution unique :" << endl;
-    verificateur.grille_sol.front().afficher();
+    // ==========================================================
+    // ETAPE 4 : TEST - JOUER AU SUDOKU
+    // ==========================================================
+    Sudoku sudo(3); 
+    sudo.grille_ini.diagonale = false;
+    sudo.Solution_unique(0.3);
+
+    sudo.jouer();
 
 
     // ==========================================================
-    // ETAPE 4 : TEST - SUDOKU DIAGONAL
+    // ETAPE 5 : TEST - SUDOKU DIAGONAL
     // ==========================================================
     cout << "\n\n================================================" << endl;
     cout << "   TEST SUPPLEMENTAIRE : SUDOKU DIAGONAL        " << endl;
@@ -98,7 +110,7 @@ int main(){
     // On active le mode diagonale
     geneDiag.grille_ini.diagonale = true;
 
-    cout << "Generation d'une grille diagonale (être un peu patient sur le temps que ca génère) ..." << endl;
+    cout << "Generation d'une grille diagonale..." << endl;
     Grille gDiag = geneDiag.Solution_unique(0.3);
     gDiag.diagonale = true;
 
@@ -115,7 +127,7 @@ int main(){
     verifDiag.Solution(0);
 
     int nbSolDiag = verifDiag.grille_sol.size();
-    cout << "Nombre de solutions diagonaless trouvees par le solveur : " << nbSolDiag << endl;
+    cout << "Nombre de solutions diagonales trouvees par le solveur : " << nbSolDiag << endl;
 
     if (nbSolDiag == 1) {
         cout << " VICTOIRE ! Grille diagonale unique trouvée." << endl;
@@ -132,14 +144,21 @@ int main(){
     
 
 
+    // ==========================================================
+    // ETAPE 6 : TEST - 3DOKU
+    // ==========================================================
     
+    // On initialise notre 3Doku
     Grille_3D cube;
+
+    // On le remplit de manière à ce qu'il ait une solution unique
     cube.Solution_unique(0.4); 
     
+    // - On prépare l'affichage de la solution en cas d'abandon de la partie - 
     // On copie la grille partielle dans une nouvelle variable
     Grille_3D vraie_solution = cube;
     vraie_solution.allSol = false; // On s'arrête à la première solution
-    vraie_solution.Solution(0);    // L'ordinateur résout la grille parfaite
+    vraie_solution.Solution(0);    // L'ordinateur résout la grille partielle
 
     //Jeu
     cout << "\nVoici votre grille de depart :" << endl;
