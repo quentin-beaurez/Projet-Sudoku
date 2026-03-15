@@ -49,7 +49,7 @@ int main(){
 
     // ==========================================
     // ETAPE 1 : GENERATION DE LA GRILLE UNIQUE
-    /*/ ==========================================
+    // ==========================================
     cout << "--- Generation d'un Sudoku a solution unique en cours... ---" << endl;
     
     // On crée un objet Sudoku juste pour utiliser la méthode (l'ordre 3 = 9x9)
@@ -129,10 +129,10 @@ int main(){
     else {
         cout << ">>> RATE. Pas unique (" << nbSolDiag << " solutions)." << endl;
     }
-    */
+    
 
 
-
+    
     Grille_3D cube;
     cube.Solution_unique(0.40); 
     
@@ -174,5 +174,6 @@ int main(){
             cout << "La grille est parfaitement exacte, bien joue !" << endl;
         }
     }
+    
     return 0;
 }
